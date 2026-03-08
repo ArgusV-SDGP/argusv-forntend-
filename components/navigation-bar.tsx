@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -9,9 +9,10 @@ import {
   NavigationMenuItem,
   NavigationMenuLink,
 } from "@/components/ui/navigation-menu-1";
-import { LayoutGrid, Bell } from "lucide-react";
+import { LayoutGrid, Bell, Menu, X } from "lucide-react";
 
 export function NavigationBar() {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
 
   const getLinkStyle = (path: string) => {
@@ -24,7 +25,7 @@ export function NavigationBar() {
   };
 
   return (
-    <header className="flex h-16 w-full items-center justify-between px-6 bg-secondary/5 ">
+    <header className="relative z-50 flex h-16 w-full items-center justify-between px-4 md:px-6 bg-secondary/5 ">
       {/* Left - Logo */}
       <div className="flex items-center">
         <span className="text-xl font-bold tracking-tight text-foreground">
@@ -68,8 +69,8 @@ export function NavigationBar() {
       </NavigationMenu>
 
       {/* Right - Actions & Profile */}
-      <div className="flex items-center gap-5 text-muted-foreground">
-        <button className="hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-full p-1 -m-1">
+      <div className="flex items-center gap-3 md:gap-5 text-muted-foreground">
+        <button className="hidden md:block hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-full p-1 -m-1">
           <LayoutGrid className="size-5" />
         </button>
         <button className="hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-full p-1 -m-1 relative">
@@ -82,7 +83,53 @@ export function NavigationBar() {
             className="h-full w-full object-cover"
           />
         </div>
+        <button
+          className="md:hidden hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-full p-1 -m-1 ml-1"
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        >
+          {isMobileMenuOpen ? (
+            <X className="size-5" />
+          ) : (
+            <Menu className="size-5" />
+          )}
+        </button>
       </div>
+
+      {/* Mobile Menu Dropdown */}
+      {isMobileMenuOpen && (
+        <div className="absolute top-16 left-0 right-0 bg-background/95 backdrop-blur-md border-b border-border shadow-md p-4 md:hidden z-50">
+          <nav className="flex flex-col gap-2">
+            <Link
+              href="/"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={`p-2 rounded-md ${pathname === "/" ? "bg-accent text-foreground font-medium" : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"}`}
+            >
+              Live Feed
+            </Link>
+            <Link
+              href="/recordings"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={`p-2 rounded-md ${pathname?.startsWith("/recordings") ? "bg-accent text-foreground font-medium" : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"}`}
+            >
+              Recordings
+            </Link>
+            <Link
+              href="/incidents"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={`p-2 rounded-md ${pathname?.startsWith("/incidents") ? "bg-accent text-foreground font-medium" : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"}`}
+            >
+              Incidents
+            </Link>
+            <Link
+              href="/zones"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={`p-2 rounded-md ${pathname?.startsWith("/zones") ? "bg-accent text-foreground font-medium" : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"}`}
+            >
+              Zones
+            </Link>
+          </nav>
+        </div>
+      )}
     </header>
   );
 }
