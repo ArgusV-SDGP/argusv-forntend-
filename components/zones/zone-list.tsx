@@ -34,13 +34,23 @@ export function ZoneList({
         <button
           type="button"
           onClick={onRefresh}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white hover:bg-slate-50 border border-slate-200 text-xs font-medium transition-colors text-slate-600"
+          disabled={isRefreshing}
+          className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white hover:bg-slate-50 border border-slate-200 text-xs font-medium transition-colors text-slate-600 disabled:opacity-50"
         >
-          <RefreshCw className="size-3.5" /> Refresh
+          <RefreshCw className={`size-3.5 ${isRefreshing ? "animate-spin" : ""}`} /> Refresh
         </button>
       </div>
 
+      {error ? <p className="mb-4 text-sm text-red-600">{error}</p> : null}
+
       <div className="flex-1 overflow-y-auto space-y-3 pr-1 -mr-1 custom-scrollbar">
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <Activity className="size-10 text-slate-700 mb-3" />
+            <p className="text-slate-400 font-medium">Loading zones...</p>
+          </div>
+        ) : null}
+
         {zones.map((zone) => (
           <div
             key={zone.id}
@@ -103,7 +113,7 @@ export function ZoneList({
           </div>
         ))}
 
-        {zones.length === 0 && (
+        {!isLoading && zones.length === 0 && (
           <div className="flex flex-col items-center justify-center py-12 text-center">
             <Activity className="size-10 text-slate-700 mb-3" />
             <p className="text-slate-400 font-medium">
