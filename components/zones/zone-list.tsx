@@ -1,28 +1,24 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { Activity, RefreshCw, PenTool, Trash2, Clock } from "lucide-react";
+import type { ZoneListItem } from "@/lib/mappers/zone.mappers";
 
-export function ZoneList() {
-  const [zones, setZones] = useState([
-    {
-      id: "1e9fad4c-c529-4378-959d-c95d1e479434",
-      name: "inside",
-      type: "loitering",
-      dwell: 70,
-      active: true,
-      points: 4,
-    },
-    {
-      id: "8f2a1b9c-e341-4821-bc7d-f82a91b452ef",
-      name: "perimeter_back",
-      type: "intrusion",
-      dwell: 0,
-      active: true,
-      points: 6,
-    },
-  ]);
+type ZoneListProps = {
+  zones: ZoneListItem[];
+  isLoading: boolean;
+  isRefreshing: boolean;
+  error: string;
+  onRefresh: () => void;
+};
 
+export function ZoneList({
+  zones,
+  isLoading,
+  isRefreshing,
+  error,
+  onRefresh,
+}: ZoneListProps) {
   return (
     <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm h-full flex flex-col relative overflow-hidden">
       <div className="flex items-center justify-between mb-6">
@@ -35,12 +31,26 @@ export function ZoneList() {
             Current configured zones from API
           </p>
         </div>
-        <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white hover:bg-slate-50 border border-slate-200 text-xs font-medium transition-colors text-slate-600">
-          <RefreshCw className="size-3.5" /> Refresh
+        <button
+          type="button"
+          onClick={onRefresh}
+          disabled={isRefreshing}
+          className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white hover:bg-slate-50 border border-slate-200 text-xs font-medium transition-colors text-slate-600 disabled:opacity-50"
+        >
+          <RefreshCw className={`size-3.5 ${isRefreshing ? "animate-spin" : ""}`} /> Refresh
         </button>
       </div>
 
+      {error ? <p className="mb-4 text-sm text-red-600">{error}</p> : null}
+
       <div className="flex-1 overflow-y-auto space-y-3 pr-1 -mr-1 custom-scrollbar">
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <Activity className="size-10 text-slate-700 mb-3" />
+            <p className="text-slate-400 font-medium">Loading zones...</p>
+          </div>
+        ) : null}
+
         {zones.map((zone) => (
           <div
             key={zone.id}
@@ -55,10 +65,16 @@ export function ZoneList() {
                 {zone.name}
               </h3>
               <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button className="p-1.5 rounded-md hover:bg-slate-100 text-slate-400 hover:text-blue-500 transition-colors">
+                <button
+                  type="button"
+                  className="p-1.5 rounded-md hover:bg-slate-100 text-slate-400 hover:text-blue-500 transition-colors"
+                >
                   <PenTool className="size-3.5" />
                 </button>
-                <button className="p-1.5 rounded-md hover:bg-red-50 text-slate-400 hover:text-red-500 transition-colors">
+                <button
+                  type="button"
+                  className="p-1.5 rounded-md hover:bg-red-50 text-slate-400 hover:text-red-500 transition-colors"
+                >
                   <Trash2 className="size-3.5" />
                 </button>
               </div>
@@ -100,7 +116,7 @@ export function ZoneList() {
           </div>
         ))}
 
-        {zones.length === 0 && (
+        {!isLoading && zones.length === 0 && (
           <div className="flex flex-col items-center justify-center py-12 text-center">
             <Activity className="size-10 text-slate-700 mb-3" />
             <p className="text-slate-400 font-medium">
