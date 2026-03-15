@@ -2,10 +2,29 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { Stage, Layer, Line, Circle } from "react-konva";
+import type { KonvaEventObject } from "konva/lib/Node";
 import { PenTool, Undo2, Trash2, Plus } from "lucide-react";
+import type { CreateZonePayload } from "@/lib/mappers/zone.mappers";
 
-export function DrawZone() {
-  const [points, setPoints] = useState<{ x: number; y: number }[]>([]);
+type Point = {
+  x: number;
+  y: number;
+};
+
+type DrawZoneProps = {
+  onCreateZone: (payload: CreateZonePayload) => Promise<boolean>;
+  isCreating: boolean;
+  formError: string;
+  formSuccess: string;
+};
+
+export function DrawZone({
+  onCreateZone,
+  isCreating,
+  formError,
+  formSuccess,
+}: DrawZoneProps) {
+  const [points, setPoints] = useState<Point[]>([]);
   const [isFinished, setIsFinished] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const [stageSize, setStageSize] = useState({ width: 0, height: 0 });
@@ -19,19 +38,23 @@ export function DrawZone() {
         });
       }
     };
-
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const handleStageClick = (e: any) => {
+  const handleStageClick = (
+    e: KonvaEventObject<MouseEvent | TouchEvent>
+  ) => {
     if (isFinished) return;
     const stage = e.target.getStage();
     const pointerPosition = stage.getPointerPosition();
 
     if (pointerPosition) {
-      setPoints([...points, { x: pointerPosition.x, y: pointerPosition.y }]);
+      setPoints((currentPoints) => [
+        ...currentPoints,
+        { x: pointerPosition.x, y: pointerPosition.y },
+      ]);
     }
   };
 
@@ -47,7 +70,7 @@ export function DrawZone() {
     setIsFinished(false);
   };
 
-  const flattenPoints = (pts: { x: number; y: number }[]) => {
+  const flattenPoints = (pts: Point[]) => {
     return pts.reduce((acc: number[], pt) => [...acc, pt.x, pt.y], []);
   };
 
@@ -96,7 +119,9 @@ export function DrawZone() {
                   <Circle
                     x={point.x}
                     y={point.y}
-                    radius={i === 0 && points.length > 2 && !isFinished ? 6 : 4}
+                    radius={
+                      i === 0 && points.length > 2 && !isFinished ? 6 : 4
+                    }
                     fill="white"
                     stroke="#3b82f6"
                     strokeWidth={2}
@@ -132,15 +157,17 @@ export function DrawZone() {
 
       <div className="flex items-center gap-3 mt-4">
         <button
+          type="button"
           onClick={handleUndo}
-          disabled={points.length === 0}
+          disabled={points.length === 0 || isCreating}
           className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white hover:bg-slate-50 border border-slate-200 text-sm font-medium transition-colors text-slate-600 disabled:opacity-50"
         >
           <Undo2 className="size-4" /> Undo
         </button>
         <button
+          type="button"
           onClick={handleClear}
-          disabled={points.length === 0}
+          disabled={points.length === 0 || isCreating}
           className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white hover:bg-red-50 hover:text-red-600 hover:border-red-200 border border-slate-200 text-sm font-medium transition-colors text-slate-600 disabled:opacity-50"
         >
           <Trash2 className="size-4" /> Clear
@@ -185,13 +212,16 @@ export function DrawZone() {
             Status
           </label>
           <select className="w-full bg-white border border-slate-200 hover:border-slate-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-lg px-4 py-2.5 text-sm text-slate-800 transition-all outline-none appearance-none shadow-sm">
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
+            <option value="true">Active</option>
+            <option value="false">Inactive</option>
           </select>
         </div>
       </div>
 
-      <button className="mt-6 w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium shadow-sm transition-all border border-blue-600">
+      <button
+        disabled={isCreating || points.length < 3}
+        className="mt-6 w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium shadow-sm transition-all border border-blue-600 disabled:opacity-50"
+      >
         <Plus className="size-5" />
         Create Zone
       </button>
