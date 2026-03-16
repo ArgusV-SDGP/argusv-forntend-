@@ -166,7 +166,6 @@ export function IncidentList({
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
-            <AlertTriangle className="size-5 text-amber-500" />
             Incident Log
           </h2>
           <p className="text-xs text-slate-500 mt-1">
@@ -194,7 +193,6 @@ export function IncidentList({
           </div>
         ) : incidents.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
-            <CheckCircle className="size-10 text-emerald-300 mb-3" />
             <p className="text-slate-400 font-medium">No incidents found.</p>
             <p className="text-slate-500 text-sm mt-1">
               Try adjusting your filters or check back later.

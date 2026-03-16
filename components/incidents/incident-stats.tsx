@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { AlertTriangle, CheckCircle, Clock, ShieldAlert } from "lucide-react";
+import { Activity, CheckCheck, Tag, Siren } from "lucide-react";
 import type { IncidentListItem } from "@/lib/mappers/incident.mappers";
 
 type IncidentStatsProps = {
@@ -44,31 +44,31 @@ export function IncidentStats({ incidents, isLoading }: IncidentStatsProps) {
   return (
     <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
       <StatCard
-        icon={<AlertTriangle className="size-5 text-slate-600" />}
+        icon={<Activity className="size-6 text-blue-600" />}
         label="Total"
         value={total}
-        accent="bg-slate-100"
+        accent=""
         isLoading={isLoading}
       />
       <StatCard
-        icon={<Clock className="size-5 text-amber-600" />}
+        icon={<Tag className="size-6 text-amber-600" />}
         label="Open"
         value={open}
-        accent="bg-amber-50"
+        accent=""
         isLoading={isLoading}
       />
       <StatCard
-        icon={<ShieldAlert className="size-5 text-red-600" />}
+        icon={<Siren className="size-6 text-red-600" />}
         label="Critical"
         value={critical}
-        accent="bg-red-50"
+        accent=""
         isLoading={isLoading}
       />
       <StatCard
-        icon={<CheckCircle className="size-5 text-emerald-600" />}
+        icon={<CheckCheck className="size-6 text-emerald-600" />}
         label="Resolved"
         value={resolved}
-        accent="bg-emerald-50"
+        accent=""
         isLoading={isLoading}
       />
     </div>
