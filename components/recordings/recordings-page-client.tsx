@@ -15,7 +15,6 @@ import {
 import { useSearchParams } from "next/navigation";
 import { format } from "date-fns";
 
-import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
@@ -447,6 +446,7 @@ export function RecordingsPageClient() {
   const [playbackSeconds, setPlaybackSeconds] = React.useState(0);
   const [isPlaying, setIsPlaying] = React.useState(true);
   const [isReady, setIsReady] = React.useState(false);
+  const [calendarOpen, setCalendarOpen] = React.useState(false);
 
   const trackRef = React.useRef<HTMLDivElement | null>(null);
   const rafRef = React.useRef<number | null>(null);
@@ -610,86 +610,75 @@ export function RecordingsPageClient() {
                 <h1 className="mt-2 text-2xl font-semibold text-slate-900 sm:text-3xl">
                   Recordings Console
                 </h1>
-                <p className="mt-2 max-w-2xl text-sm text-slate-500">
-                  Demo implementation using hard-coded camera, timeline, and
-                  incident replay data.
-                </p>
               </div>
 
-              <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap xl:justify-end">
-                <Select
-                  value={selectedCamera}
-                  onValueChange={(value) => setSelectedCamera(value || "")}
-                >
-                  <SelectTrigger className="px-4 py-3 text-sm rounded-2xl">
-                    <SelectValue placeholder="Select camera" />
-                  </SelectTrigger>
-                  <SelectContent align="start" className="rounded-2xl">
-                    {cameras.map((camera) => (
-                      <SelectItem
-                        key={camera.camera_id}
-                        value={camera.camera_id}
-                      >
-                        {camera.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Select
+                      value={selectedCamera}
+                      onValueChange={(value) => setSelectedCamera(value || "")}
+                    >
+                      <SelectTrigger className="h-11 w-full rounded-2xl border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-100">
+                        <SelectValue placeholder="Select camera" />
+                      </SelectTrigger>
+                      <SelectContent align="start">
+                        {cameras.map((camera) => (
+                          <SelectItem
+                            key={camera.camera_id}
+                            value={camera.camera_id}
+                          >
+                            {camera.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-                <Popover>
-                  <PopoverTrigger
-                    render={
-                      <Button
-                        variant="outline"
-                        className="px-4 py-3 text-sm rounded-2xl"
-                      />
-                    }
+                  <div>
+                    <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+                      <PopoverTrigger className="flex h-11 w-full items-center justify-between gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-100">
+                        <CalendarIcon className="size-4" />
+                        {selectedDateValue
+                          ? format(selectedDateValue, "PPP")
+                          : "Pick a date"}
+                        <ChevronDownIcon className="size-4" />
+                      </PopoverTrigger>
+                      <PopoverContent align="start" className="w-auto p-0">
+                        <Calendar
+                          mode="single"
+                          selected={selectedDateValue}
+                          onSelect={(date) => {
+                            if (date) {
+                              setSelectedDate(format(date, "yyyy-MM-dd"));
+                              setCalendarOpen(false);
+                            }
+                          }}
+                          defaultMonth={selectedDateValue}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setEventsOnly((current) => !current)}
+                    className={`flex h-11 w-full items-center justify-center gap-2 rounded-2xl border px-4 text-sm font-medium transition ${
+                      eventsOnly
+                        ? "border-sky-600 bg-sky-600 text-white shadow-sm"
+                        : "border-slate-200 bg-slate-50 text-slate-700 shadow-sm hover:bg-slate-100"
+                    }`}
                   >
-                    <span className="flex items-center gap-2">
-                      <CalendarIcon className="size-4" />
-                      {selectedDateValue
-                        ? format(selectedDateValue, "PPP")
-                        : "Pick a date"}
-                    </span>
-                    <ChevronDownIcon className="size-4" />
-                  </PopoverTrigger>
-                  <PopoverContent
-                    align="start"
-                    className="w-auto p-0 rounded-2xl"
+                    <Filter className="size-4" />
+                    Events Only
+                  </button>
+
+                  <button
+                    type="button"
+                    className="flex h-11 w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50"
                   >
-                    <Calendar
-                      mode="single"
-                      selected={selectedDateValue}
-                      onSelect={(date) => {
-                        if (date) {
-                          setSelectedDate(format(date, "yyyy-MM-dd"));
-                        }
-                      }}
-                      defaultMonth={selectedDateValue}
-                    />
-                  </PopoverContent>
-                </Popover>
-
-                <button
-                  type="button"
-                  onClick={() => setEventsOnly((current) => !current)}
-                  className={`inline-flex items-center justify-center gap-2 rounded-2xl border px-4 py-3 text-sm font-medium transition ${
-                    eventsOnly
-                      ? "border-sky-600 bg-sky-600 text-white shadow-sm"
-                      : "border-slate-200 bg-slate-50 text-slate-700 shadow-sm hover:bg-slate-100"
-                  }`}
-                >
-                  <Filter className="size-4" />
-                  Events Only
-                </button>
-
-                <button
-                  type="button"
-                  className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50"
-                >
-                  <Download className="size-4" />
-                  Download Segment
-                </button>
+                    <Download className="size-4" />
+                    Download Segment
+                  </button>
               </div>
             </div>
           </div>
