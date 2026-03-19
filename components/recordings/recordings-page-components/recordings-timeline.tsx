@@ -35,7 +35,7 @@ export function RecordingsTimeline({
       <div
         ref={trackRef}
         onClick={onTimelineSeek}
-        className="relative mt-4 h-16 cursor-crosshair overflow-hidden rounded-2xl border border-slate-200 bg-slate-50"
+        className="relative mt-3 h-14 cursor-crosshair overflow-hidden rounded-2xl border border-slate-200 bg-slate-50"
       >
         <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(148,163,184,0.16)_1px,transparent_1px)] bg-[size:4.166%_100%]" />
 
