@@ -46,28 +46,36 @@ export function RecordingCameraCard({
         </div>
       </div>
 
-      <div className="grid grid-cols-1">
-        <div
-          className={`relative overflow-hidden bg-slate-900 ${
-            isFeatured ? "h-[16rem] md:h-[20rem] xl:h-[24rem]" : "h-[11rem] md:h-[12.5rem]"
-          }`}
-        >
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_25%,rgba(148,163,184,0.2),transparent_40%),radial-gradient(circle_at_70%_50%,rgba(15,23,42,0.35),transparent_55%),linear-gradient(140deg,#2c3e50_0%,#3f5a3e_40%,#6b8e57_70%,#1f2937_100%)]" />
-          <div className="absolute inset-x-0 top-0 h-12 bg-gradient-to-b from-black/20 to-transparent" />
-          <div className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-black/35 to-transparent" />
-          <div className="absolute left-4 top-4 flex items-center gap-2 rounded-full bg-black/40 px-3 py-1.5 text-sm text-white">
-            <Camera className="size-4" />
-            Live Playback
-          </div>
-          {activeTimestamp && (
-            <div className="absolute right-4 top-4 rounded-full bg-black/40 px-3 py-1.5 text-sm text-white">
-              {activeTimestamp}
+      <div
+        className={`${
+          isSelected && metadataEvents.length > 0
+            ? "grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_22rem]"
+            : "grid grid-cols-1"
+        }`}
+      >
+        <div className="min-w-0">
+          <div
+            className={`relative overflow-hidden bg-slate-900 ${
+              isFeatured ? "h-[16rem] md:h-[20rem] xl:h-[24rem]" : "h-[11rem] md:h-[12.5rem]"
+            }`}
+          >
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_25%,rgba(148,163,184,0.2),transparent_40%),radial-gradient(circle_at_70%_50%,rgba(15,23,42,0.35),transparent_55%),linear-gradient(140deg,#2c3e50_0%,#3f5a3e_40%,#6b8e57_70%,#1f2937_100%)]" />
+            <div className="absolute inset-x-0 top-0 h-12 bg-gradient-to-b from-black/20 to-transparent" />
+            <div className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-black/35 to-transparent" />
+            <div className="absolute left-4 top-4 flex items-center gap-2 rounded-full bg-black/40 px-3 py-1.5 text-sm text-white">
+              <Camera className="size-4" />
+              Live Playback
             </div>
-          )}
+            {activeTimestamp && (
+              <div className="absolute right-4 top-4 rounded-full bg-black/40 px-3 py-1.5 text-sm text-white">
+                {activeTimestamp}
+              </div>
+            )}
+          </div>
         </div>
 
         {isSelected && metadataEvents.length > 0 && (
-          <div className="border-t border-slate-200 bg-slate-50 p-4">
+          <div className="border-t border-slate-200 bg-slate-50 p-4 lg:max-h-[24rem] lg:overflow-y-auto lg:border-l lg:border-t-0">
             <div className="mb-3 flex items-center justify-between gap-3">
               <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-teal-600">
                 AI Metadata
@@ -75,7 +83,7 @@ export function RecordingCameraCard({
               <p className="text-xs text-slate-500">{metadataEvents.length} event(s)</p>
             </div>
 
-            <div className={`grid gap-3 ${isFeatured ? "md:grid-cols-2" : "grid-cols-1"}`}>
+            <div className="grid grid-cols-1 gap-3">
               {metadataEvents.map((event) => (
                 <article
                   key={event.id}
