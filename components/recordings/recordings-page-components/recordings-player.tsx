@@ -25,8 +25,8 @@ export function RecordingsPlayer({
   currentActualTime,
 }: RecordingsPlayerProps) {
   return (
-    <div className="relative overflow-hidden rounded-[24px] border border-slate-200 bg-slate-950 shadow-[0_14px_36px_rgba(15,23,42,0.16)]">
-      <div className="aspect-video">
+    <div className="relative min-h-[260px] flex-1 overflow-hidden rounded-[24px] border border-slate-200 bg-slate-950 shadow-[0_14px_36px_rgba(15,23,42,0.16)] xl:min-h-0">
+      <div className="relative h-[300px] sm:h-[360px] lg:h-[420px] xl:h-full">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(59,130,246,0.2),transparent_24%),radial-gradient(circle_at_80%_30%,rgba(244,63,94,0.22),transparent_28%),linear-gradient(180deg,rgba(15,23,42,0.4),rgba(2,6,23,0.95))]" />
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:44px_44px] opacity-30" />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent,rgba(15,23,42,0.15),transparent)] animate-[pulse_8s_ease-in-out_infinite]" />

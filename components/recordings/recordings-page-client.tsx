@@ -191,16 +191,15 @@ export function RecordingsPageClient() {
   }
 
   return (
-    <main className="min-h-[calc(100vh-4rem)] bg-slate-50 px-4 py-6 text-slate-900 sm:px-6 lg:px-8">
-      <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">
-        <section className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_18px_45px_rgba(15,23,42,0.08)]">
-          <div className="border-b border-slate-200 px-5 py-4 sm:px-6">
+      <div className="h-screen overflow-hidden p-3 sm:p-4">
+        <section className="flex h-full min-h-0 flex-col overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_18px_45px_rgba(15,23,42,0.08)]">
+          <div className="border-b border-slate-200 px-4 py-3 sm:px-5">
             <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.34em] text-sky-600">
                   NVR Playback
                 </p>
-                <h1 className="mt-2 text-2xl font-semibold text-slate-900 sm:text-3xl">
+                <h1 className="mt-1.5 text-2xl font-semibold text-slate-900 sm:text-3xl">
                   Recordings Console
                 </h1>
               </div>
@@ -219,8 +218,8 @@ export function RecordingsPageClient() {
             </div>
           </div>
 
-          <div className="grid gap-6 px-5 py-5 sm:px-6 xl:grid-cols-[minmax(0,1fr)_320px]">
-            <div className="flex flex-col gap-6">
+          <div className="grid min-h-0 flex-1 gap-4 px-4 py-4 sm:px-5 xl:grid-cols-[minmax(0,1fr)_300px]">
+            <div className="flex min-h-0 flex-col gap-4">
               <RecordingsPlayer
                 isIncidentReplay={isIncidentReplay}
                 status={status}
@@ -248,6 +247,6 @@ export function RecordingsPageClient() {
           </div>
         </section>
       </div>
-    </main>
+
   );
 }
