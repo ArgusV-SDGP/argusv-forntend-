@@ -44,11 +44,10 @@ export function DrawZone({
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const handleStageClick = (
-    e: KonvaEventObject<MouseEvent | TouchEvent>
-  ) => {
+  const handleStageClick = (e: KonvaEventObject<MouseEvent | TouchEvent>) => {
     if (isFinished) return;
     const stage = e.target.getStage();
+    if (!stage) return;
     const pointerPosition = stage.getPointerPosition();
 
     if (pointerPosition) {
@@ -85,7 +84,7 @@ export function DrawZone({
         [
           Number((point.x / stageSize.width).toFixed(6)),
           Number((point.y / stageSize.height).toFixed(6)),
-        ] as [number, number]
+        ] as [number, number],
     );
   };
 
@@ -120,7 +119,7 @@ export function DrawZone({
 
   return (
     <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm relative overflow-hidden group">
-      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-cyan-400"></div>
+      <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-blue-500 to-cyan-400"></div>
 
       <form ref={formRef} onSubmit={handleSubmit}>
         <div className="flex items-center justify-between mb-4">
@@ -223,21 +222,30 @@ export function DrawZone({
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-500 tracking-wide uppercase">
+            <label
+              htmlFor="zone-name"
+              className="text-xs font-semibold text-slate-500 tracking-wide uppercase"
+            >
               Zone Name
             </label>
             <input
+              id="zone-name"
               type="text"
               name="name"
+              placeholder="Enter zone name"
               defaultValue="Front Gate"
               className="w-full bg-white border border-slate-200 hover:border-slate-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-lg px-4 py-2.5 text-sm text-slate-800 transition-all outline-none shadow-sm"
             />
           </div>
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-500 tracking-wide uppercase">
+            <label
+              htmlFor="zone-type"
+              className="text-xs font-semibold text-slate-500 tracking-wide uppercase"
+            >
               Zone Type
             </label>
             <select
+              id="zone-type"
               name="zone_type"
               className="w-full bg-white border border-slate-200 hover:border-slate-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-lg px-4 py-2.5 text-sm text-slate-800 transition-all outline-none appearance-none shadow-sm"
             >
@@ -248,22 +256,31 @@ export function DrawZone({
             </select>
           </div>
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-500 tracking-wide uppercase">
+            <label
+              htmlFor="dwell-threshold"
+              className="text-xs font-semibold text-slate-500 tracking-wide uppercase"
+            >
               Dwell Threshold (sec)
             </label>
             <input
+              id="dwell-threshold"
               type="number"
               name="dwell_threshold_sec"
+              placeholder="30"
               defaultValue="30"
               min="0"
               className="w-full bg-white border border-slate-200 hover:border-slate-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-lg px-4 py-2.5 text-sm text-slate-800 transition-all outline-none shadow-sm"
             />
           </div>
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-500 tracking-wide uppercase">
+            <label
+              htmlFor="status"
+              className="text-xs font-semibold text-slate-500 tracking-wide uppercase"
+            >
               Status
             </label>
             <select
+              id="status"
               name="active"
               defaultValue="true"
               className="w-full bg-white border border-slate-200 hover:border-slate-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-lg px-4 py-2.5 text-sm text-slate-800 transition-all outline-none appearance-none shadow-sm"
