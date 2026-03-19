@@ -2,6 +2,21 @@ import { authFetch } from "./auth.service";
 import { mapIncidents } from "../mappers/incident.mappers";
 import type { IncidentListItem } from "../mappers/incident.mappers";
 
+export type SearchResult = {
+  detection_id: string;
+  event_id?: string;
+  camera_id: string;
+  zone_name?: string;
+  object_class?: string;
+  threat_level?: string;
+  is_threat?: boolean;
+  vlm_summary?: string;
+  detected_at: string;
+  score: number;
+  incident_id?: string;
+  thumbnail_url?: string;
+};
+
 async function parseError(response: Response) {
   try {
     const data = await response.json();
@@ -24,8 +39,11 @@ export async function getIncidents(): Promise<IncidentListItem[]> {
 }
 
 export async function acknowledgeIncident(id: string): Promise<void> {
-  const response = await authFetch(`/api/incidents/${id}/acknowledge`, {
-    method: "POST",
+  // Backend has no "acknowledged" status — add an annotation to mark it acknowledged
+  const response = await authFetch(`/api/incidents/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ annotation: "Acknowledged by operator" }),
   });
   if (!response.ok) {
     const message = await parseError(response);
@@ -34,11 +52,23 @@ export async function acknowledgeIncident(id: string): Promise<void> {
 }
 
 export async function resolveIncident(id: string): Promise<void> {
-  const response = await authFetch(`/api/incidents/${id}/resolve`, {
-    method: "POST",
+  const response = await authFetch(`/api/incidents/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ status: "RESOLVED" }),
   });
   if (!response.ok) {
     const message = await parseError(response);
     throw new Error(message);
   }
+}
+
+export async function semanticSearch(query: string, limit = 20): Promise<SearchResult[]> {
+  const params = new URLSearchParams({ q: query, limit: String(limit) });
+  const response = await authFetch(`/api/search?${params}`);
+  if (!response.ok) {
+    const message = await parseError(response);
+    throw new Error(message);
+  }
+  return response.json();
 }

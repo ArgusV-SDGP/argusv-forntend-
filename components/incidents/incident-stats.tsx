@@ -38,7 +38,7 @@ function StatCard({ icon, label, value, accent, isLoading }: StatCardProps) {
 export function IncidentStats({ incidents, isLoading }: IncidentStatsProps) {
   const total = incidents.length;
   const open = incidents.filter((i) => i.status === "open").length;
-  const critical = incidents.filter((i) => i.severity === "critical").length;
+  const critical = incidents.filter((i) => i.severity === "high").length;
   const resolved = incidents.filter((i) => i.status === "resolved").length;
 
   return (

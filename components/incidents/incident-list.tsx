@@ -18,6 +18,7 @@ import type {
   IncidentType,
 } from "@/lib/mappers/incident.mappers";
 
+
 type IncidentListProps = {
   incidents: IncidentListItem[];
   isLoading: boolean;
@@ -31,8 +32,7 @@ type IncidentListProps = {
 const SEVERITY_STYLES: Record<IncidentSeverity, { bar: string; badge: string }> = {
   low: { bar: "bg-slate-400", badge: "bg-slate-100 text-slate-600 border-slate-200" },
   medium: { bar: "bg-amber-400", badge: "bg-amber-50 text-amber-700 border-amber-200" },
-  high: { bar: "bg-orange-500", badge: "bg-orange-50 text-orange-700 border-orange-200" },
-  critical: { bar: "bg-red-600", badge: "bg-red-50 text-red-700 border-red-200" },
+  high: { bar: "bg-red-500", badge: "bg-red-50 text-red-700 border-red-200" },
 };
 
 const STATUS_STYLES: Record<IncidentStatus, string> = {
@@ -42,12 +42,9 @@ const STATUS_STYLES: Record<IncidentStatus, string> = {
 };
 
 const TYPE_STYLES: Record<IncidentType, string> = {
-  motion: "bg-blue-50 text-blue-700 border-blue-100",
-  door: "bg-purple-50 text-purple-700 border-purple-100",
-  rfid: "bg-cyan-50 text-cyan-700 border-cyan-100",
-  system: "bg-amber-50 text-amber-700 border-amber-100",
-  tag: "bg-green-50 text-green-700 border-green-100",
   intrusion: "bg-red-50 text-red-700 border-red-100",
+  motion: "bg-blue-50 text-blue-700 border-blue-100",
+  system: "bg-amber-50 text-amber-700 border-amber-100",
 };
 
 function formatTimestamp(ts: string) {
@@ -84,7 +81,7 @@ function IncidentCard({ incident, onAcknowledge, onResolve }: IncidentCardProps)
           <span
             className={`text-xs font-semibold px-2 py-0.5 rounded-md border capitalize ${typeClass}`}
           >
-            {incident.type}
+            {incident.objectClass}
           </span>
           <span
             className={`text-xs font-semibold px-2 py-0.5 rounded-md border capitalize ${severity.badge}`}

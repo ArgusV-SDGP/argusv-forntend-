@@ -18,12 +18,9 @@ type IncidentFiltersProps = {
 
 const TYPE_OPTIONS: { value: IncidentType | "all"; label: string }[] = [
   { value: "all", label: "All Types" },
-  { value: "motion", label: "Motion" },
-  { value: "door", label: "Door" },
-  { value: "rfid", label: "RFID" },
-  { value: "system", label: "System" },
-  { value: "tag", label: "Tag" },
-  { value: "intrusion", label: "Intrusion" },
+  { value: "intrusion", label: "Intrusion (Person)" },
+  { value: "motion", label: "Motion (Vehicle)" },
+  { value: "system", label: "System / Other" },
 ];
 
 const STATUS_OPTIONS: { value: IncidentStatus | "all"; label: string }[] = [
@@ -38,7 +35,6 @@ const SEVERITY_OPTIONS: { value: IncidentSeverity | "all"; label: string }[] = [
   { value: "low", label: "Low" },
   { value: "medium", label: "Medium" },
   { value: "high", label: "High" },
-  { value: "critical", label: "Critical" },
 ];
 
 const selectClass =

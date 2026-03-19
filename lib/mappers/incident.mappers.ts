@@ -1,24 +1,24 @@
-export type IncidentSeverity = "low" | "medium" | "high" | "critical";
+export type IncidentSeverity = "low" | "medium" | "high";
 export type IncidentStatus = "open" | "acknowledged" | "resolved";
 export type IncidentType =
+  | "intrusion"
   | "motion"
-  | "door"
-  | "rfid"
-  | "system"
-  | "tag"
-  | "intrusion";
+  | "system";
 
+// Backend response shape from /api/incidents
 export type IncidentApiResponse = {
   incident_id?: string;
-  type?: string;
-  severity?: string;
-  status?: string;
   camera_id?: string;
-  camera_name?: string;
+  zone_id?: string;
   zone_name?: string;
-  description?: string;
-  timestamp?: string;
+  object_class?: string;   // YOLO class: "person", "car", etc.
+  threat_level?: string;   // "HIGH" | "MEDIUM" | "LOW"
+  summary?: string;        // VLM description
+  status?: string;         // "OPEN" | "RESOLVED"
+  detected_at?: string;    // ISO timestamp
+  resolved_at?: string;
   thumbnail_url?: string;
+  metadata_json?: Record<string, unknown>;
 };
 
 export type IncidentListItem = {
@@ -30,21 +30,46 @@ export type IncidentListItem = {
   cameraName: string;
   zoneName: string;
   description: string;
+  objectClass: string;
   timestamp: string;
   thumbnailUrl: string;
 };
 
+const PERSON_CLASSES = new Set(["person", "people", "human", "pedestrian"]);
+const VEHICLE_CLASSES = new Set(["car", "truck", "bus", "motorcycle", "bicycle", "vehicle"]);
+
+function mapObjectClassToType(cls?: string): IncidentType {
+  const c = cls?.toLowerCase() ?? "";
+  if (PERSON_CLASSES.has(c)) return "intrusion";
+  if (VEHICLE_CLASSES.has(c)) return "motion";
+  return "system";
+}
+
+function mapThreatLevel(level?: string): IncidentSeverity {
+  const l = level?.toUpperCase();
+  if (l === "HIGH") return "high";
+  if (l === "MEDIUM") return "medium";
+  return "low";
+}
+
+function mapStatus(status?: string): IncidentStatus {
+  const s = status?.toUpperCase();
+  if (s === "RESOLVED") return "resolved";
+  return "open";
+}
+
 export function mapIncident(raw: IncidentApiResponse): IncidentListItem {
   return {
     id: raw.incident_id ?? "unknown",
-    type: (raw.type?.toLowerCase() ?? "system") as IncidentType,
-    severity: (raw.severity?.toLowerCase() ?? "low") as IncidentSeverity,
-    status: (raw.status?.toLowerCase() ?? "open") as IncidentStatus,
+    type: mapObjectClassToType(raw.object_class),
+    severity: mapThreatLevel(raw.threat_level),
+    status: mapStatus(raw.status),
     cameraId: raw.camera_id ?? "",
-    cameraName: raw.camera_name ?? "Unknown Camera",
+    cameraName: raw.camera_id ?? "Unknown Camera",
     zoneName: raw.zone_name ?? "—",
-    description: raw.description ?? "",
-    timestamp: raw.timestamp ?? new Date().toISOString(),
+    description: raw.summary ?? "",
+    objectClass: raw.object_class ?? "unknown",
+    timestamp: raw.detected_at ?? new Date().toISOString(),
     thumbnailUrl: raw.thumbnail_url ?? "",
   };
 }

@@ -1,3 +1,14 @@
+export type ZoneRule = {
+  rule_id: string;
+  zone_id: string;
+  trigger_type: string;
+  severity: string;
+  object_classes: string[];
+  action: string;
+  min_confidence: number;
+  is_active: boolean;
+};
+
 export type ZoneApiResponse = {
   zone_id?: string;
   name?: string;
@@ -5,6 +16,7 @@ export type ZoneApiResponse = {
   dwell_threshold_sec?: number;
   active?: boolean;
   polygon_coords?: [number, number][];
+  rules?: ZoneRule[];
 };
 
 export type ZoneListItem = {
@@ -15,6 +27,7 @@ export type ZoneListItem = {
   active: boolean;
   points: number;
   polygonCoords: [number, number][];
+  rules: ZoneRule[];
 };
 
 export type CreateZonePayload = {
@@ -23,6 +36,15 @@ export type CreateZonePayload = {
   dwell_threshold_sec: number;
   active: boolean;
   polygon_coords: [number, number][];
+};
+
+export type CreateRulePayload = {
+  trigger_type: string;
+  severity: string;
+  object_classes: string[];
+  action: string;
+  min_confidence: number;
+  is_active: boolean;
 };
 
 export function mapZoneToListItem(
@@ -47,6 +69,7 @@ export function mapZoneToListItem(
     active: Boolean(zone.active),
     points: polygonCoords.length,
     polygonCoords,
+    rules: zone.rules ?? [],
   };
 }
 
