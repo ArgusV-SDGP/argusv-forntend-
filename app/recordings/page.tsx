@@ -5,7 +5,6 @@ import { RecordingCameraCard } from "@/components/recordings/recording-camera-ca
 import { RecordingsEventsPanel } from "@/components/recordings/recordings-events-panel";
 import { RecordingsFilters } from "@/components/recordings/recordings-filters";
 import { RecordingsHeader } from "@/components/recordings/recordings-header";
-import { RecordingsTimeline } from "@/components/recordings/recordings-timeline";
 import {
   eventToMetadata,
   MOCK_CAMERAS,
@@ -111,26 +110,12 @@ export default function RecordingsPage() {
                   .filter((event) => event.cameraId === selectedCamera.id)
                   .map(eventToMetadata)}
                 activeTimestamp={selectedEvent?.timestamp}
+                timelineEvents={cameraEvents}
+                activeMinute={activeMinute}
+                onSeekMinute={handleSeekMinute}
               />
             )}
 
-            {otherCameras.length > 0 && (
-              <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                {otherCameras.map((camera) => (
-                  <RecordingCameraCard
-                    key={camera.id}
-                    cameraId={camera.id}
-                    title={camera.title}
-                    cameraCount={camera.cameraCount}
-                    isSelected={false}
-                    onSelect={handleSelectCamera}
-                    metadataEvents={allFilteredEvents
-                      .filter((event) => event.cameraId === camera.id)
-                      .map(eventToMetadata)}
-                  />
-                ))}
-              </div>
-            )}
           </div>
 
           <div className="xl:col-span-5">
@@ -142,11 +127,6 @@ export default function RecordingsPage() {
           </div>
         </div>
 
-        <RecordingsTimeline
-          events={cameraEvents}
-          activeMinute={activeMinute}
-          onSeekMinute={handleSeekMinute}
-        />
       </div>
     </div>
   );

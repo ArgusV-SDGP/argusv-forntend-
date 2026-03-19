@@ -1,5 +1,6 @@
 import { Camera, Download, Pause, Play, Volume2, X } from "lucide-react";
-import type { MetadataEvent } from "./recordings-data";
+import type { MetadataEvent, RecordingEvent } from "./recordings-data";
+import { RecordingsTimeline } from "./recordings-timeline";
 
 type RecordingCameraCardProps = {
   cameraId: string;
@@ -10,6 +11,9 @@ type RecordingCameraCardProps = {
   onSelect: (cameraId: string) => void;
   metadataEvents: MetadataEvent[];
   activeTimestamp?: string;
+  timelineEvents?: RecordingEvent[];
+  activeMinute?: number;
+  onSeekMinute?: (minute: number) => void;
 };
 
 export function RecordingCameraCard({
@@ -21,6 +25,9 @@ export function RecordingCameraCard({
   onSelect,
   metadataEvents,
   activeTimestamp,
+  timelineEvents = [],
+  activeMinute,
+  onSeekMinute,
 }: RecordingCameraCardProps) {
   return (
     <section
@@ -108,6 +115,16 @@ export function RecordingCameraCard({
           </div>
         )}
       </div>
+
+      {isSelected && typeof activeMinute === "number" && onSeekMinute && (
+        <div className="border-t border-slate-200 bg-white p-4">
+          <RecordingsTimeline
+            events={timelineEvents}
+            activeMinute={activeMinute}
+            onSeekMinute={onSeekMinute}
+          />
+        </div>
+      )}
 
       <div className="flex items-center justify-between border-t border-slate-200 bg-white px-4 py-2.5">
         <div className="flex items-center gap-3 text-slate-600">
