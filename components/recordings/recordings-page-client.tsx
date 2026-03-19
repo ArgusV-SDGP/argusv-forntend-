@@ -37,7 +37,7 @@ export function RecordingsPageClient() {
   const [status, setStatus] = React.useState("Loading demo recordings...");
   const [isIncidentReplay, setIsIncidentReplay] = React.useState(false);
   const [playbackSeconds, setPlaybackSeconds] = React.useState(0);
-  const [isPlaying, setIsPlaying] = React.useState(true);
+  const [isPlaying, setIsPlaying] = React.useState(false);
   const [isReady, setIsReady] = React.useState(false);
   const [calendarOpen, setCalendarOpen] = React.useState(false);
 
