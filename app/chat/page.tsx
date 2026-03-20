@@ -1,125 +1,228 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import Hls from "hls.js";
 import {
-  MessageSquare,
-  Send,
-  Loader2,
   Bot,
-  User,
   Camera,
-  Clock,
-  ChevronDown,
-  ChevronUp,
-  AlertCircle,
-  Search,
-  Trash2,
+  ChevronRight,
+  MapPin,
+  Play,
+  Send,
+  Sparkles,
+  User,
+  X,
 } from "lucide-react";
-import { apiFetch } from "@/lib/api";
+import { authFetch, API_BASE_URL } from "@/lib/client-services/auth.service";
 
-interface SourceClip {
+// ── Types ─────────────────────────────────────────────────────────────────────
+
+type SourceClip = {
   event_id: string;
   camera_id: string;
+  zone_name: string | null;
   timestamp: string;
   vlm_summary: string | null;
+  threat_level: string | null;
+  is_threat: boolean | null;
+  thumbnail_url: string | null;
+  playlist_url: string | null;
+  incident_id: string | null;
   distance: number;
-}
+};
 
-interface ChatMessage {
+type ChatMessage = {
+  id: string;
   role: "user" | "assistant";
   content: string;
   sources?: SourceClip[];
   error?: boolean;
-}
+};
 
-function formatTimestamp(iso: string) {
-  if (!iso) return "";
+type CameraItem = { camera_id: string; name: string };
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+const THREAT_BADGE: Record<string, string> = {
+  HIGH:   "bg-red-100 text-red-700 border-red-200",
+  MEDIUM: "bg-orange-100 text-orange-700 border-orange-200",
+  LOW:    "bg-slate-100 text-slate-600 border-slate-200",
+};
+
+function formatTs(iso: string) {
   return new Date(iso).toLocaleString(undefined, {
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
+    month: "short", day: "numeric",
+    hour: "2-digit", minute: "2-digit",
   });
 }
 
-function SourcesPanel({ sources }: { sources: SourceClip[] }) {
-  const [open, setOpen] = useState(false);
-  if (!sources.length) return null;
+function relevanceLabel(distance: number) {
+  const score = 1 - distance;
+  if (score >= 0.85) return { label: "Strong match", color: "text-emerald-600" };
+  if (score >= 0.65) return { label: "Good match",   color: "text-blue-600" };
+  return                     { label: "Weak match",   color: "text-slate-400" };
+}
+
+// ── Mini HLS Player ───────────────────────────────────────────────────────────
+
+function MiniPlayer({ src }: { src: string }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const hlsRef = useRef<Hls | null>(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !src) return;
+    if (hlsRef.current) { hlsRef.current.destroy(); hlsRef.current = null; }
+
+    if (video.canPlayType("application/vnd.apple.mpegurl")) {
+      video.src = src;
+      return;
+    }
+    if (!Hls.isSupported()) return;
+    const hls = new Hls({ enableWorker: true });
+    hlsRef.current = hls;
+    hls.loadSource(src);
+    hls.attachMedia(video);
+    return () => { hls.destroy(); };
+  }, [src]);
 
   return (
-    <div className="mt-3 border border-slate-200 rounded-xl overflow-hidden">
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        className="w-full flex items-center justify-between px-3 py-2 bg-slate-50 hover:bg-slate-100 text-xs font-semibold text-slate-500 transition-colors"
-      >
-        <span className="flex items-center gap-1.5">
-          <Search className="size-3" />
-          {sources.length} source clip{sources.length !== 1 ? "s" : ""} retrieved
-        </span>
-        {open ? <ChevronUp className="size-3" /> : <ChevronDown className="size-3" />}
-      </button>
-      {open && (
-        <div className="divide-y divide-slate-100">
-          {sources.map((src) => (
-            <div key={src.event_id} className="px-3 py-2.5 bg-white">
-              <div className="flex items-center gap-3 text-[11px] text-slate-500 mb-1">
-                <span className="flex items-center gap-1">
-                  <Camera className="size-3" />
-                  {src.camera_id}
-                </span>
-                <span className="flex items-center gap-1">
-                  <Clock className="size-3" />
-                  {formatTimestamp(src.timestamp)}
-                </span>
-                <span className="text-slate-400 font-mono">
-                  sim: {(1 - src.distance).toFixed(2)}
-                </span>
-              </div>
-              {src.vlm_summary && (
-                <p className="text-xs text-slate-700 leading-relaxed">{src.vlm_summary}</p>
-              )}
+    <video
+      ref={videoRef}
+      className="w-full h-full object-cover"
+      controls
+      playsInline
+      muted
+    />
+  );
+}
+
+// ── Source Card ───────────────────────────────────────────────────────────────
+
+function SourceCard({ clip }: { clip: SourceClip }) {
+  const [showVideo, setShowVideo] = useState(false);
+  const rel = relevanceLabel(clip.distance);
+  const tBadge = THREAT_BADGE[clip.threat_level ?? ""] ?? THREAT_BADGE.LOW;
+  const playlistSrc = clip.playlist_url ? `${API_BASE_URL}${clip.playlist_url}` : null;
+
+  return (
+    <div className="bg-white border border-slate-200 rounded-xl shadow-sm hover:border-slate-300 transition-colors overflow-hidden">
+
+      {/* Video / Thumbnail area */}
+      <div className="relative w-full h-32 bg-slate-900">
+        {showVideo && playlistSrc ? (
+          <MiniPlayer src={playlistSrc} />
+        ) : clip.thumbnail_url ? (
+          <img
+            src={`${API_BASE_URL}${clip.thumbnail_url}`}
+            alt="Detection snapshot"
+            className="w-full h-full object-cover"
+            onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <Camera className="size-7 text-slate-600" />
+          </div>
+        )}
+
+        {/* Play button overlay — only if recording available */}
+        {playlistSrc && !showVideo && (
+          <button
+            type="button"
+            onClick={() => setShowVideo(true)}
+            className="absolute inset-0 flex items-center justify-center bg-black/40 hover:bg-black/50 transition-colors group"
+          >
+            <div className="size-10 rounded-full bg-white/90 flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
+              <Play className="size-4 text-slate-800 ml-0.5" />
             </div>
-          ))}
+          </button>
+        )}
+        {showVideo && (
+          <button
+            type="button"
+            onClick={() => setShowVideo(false)}
+            className="absolute top-1 right-1 size-6 rounded-full bg-black/60 flex items-center justify-center text-white hover:bg-black/80"
+          >
+            <X className="size-3" />
+          </button>
+        )}
+      </div>
+
+      <div className="p-3">
+        <div className="flex items-center gap-2 flex-wrap mb-1">
+          <span className="text-xs font-semibold text-slate-700 flex items-center gap-1">
+            <Camera className="size-3" />{clip.camera_id}
+          </span>
+          {clip.zone_name && (
+            <span className="text-xs text-slate-500 flex items-center gap-1">
+              <MapPin className="size-3" />{clip.zone_name}
+            </span>
+          )}
+          {clip.threat_level && (
+            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${tBadge}`}>
+              {clip.threat_level}
+            </span>
+          )}
+          <span className={`text-[10px] font-medium ml-auto ${rel.color}`}>{rel.label}</span>
         </div>
-      )}
+
+        <p className="text-[10px] text-slate-400 mb-1">{formatTs(clip.timestamp)}</p>
+
+        {clip.vlm_summary && (
+          <p className="text-xs text-slate-600 leading-snug line-clamp-2">{clip.vlm_summary}</p>
+        )}
+
+        {clip.incident_id ? (
+          <p className="mt-1.5 text-[10px] font-medium text-slate-500">
+            Incident ID: {clip.incident_id}
+          </p>
+        ) : null}
+      </div>
     </div>
   );
 }
 
-function MessageBubble({ message }: { message: ChatMessage }) {
-  const isUser = message.role === "user";
+// ── Message Bubble ────────────────────────────────────────────────────────────
+
+function MessageBubble({ msg }: { msg: ChatMessage }) {
+  const isUser = msg.role === "user";
 
   return (
     <div className={`flex gap-3 ${isUser ? "flex-row-reverse" : "flex-row"}`}>
       {/* Avatar */}
-      <div
-        className={`size-8 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${
-          isUser ? "bg-blue-600 text-white" : "bg-slate-800 text-white"
-        }`}
-      >
-        {isUser ? <User className="size-4" /> : <Bot className="size-4" />}
+      <div className={`size-8 rounded-full flex items-center justify-center shrink-0 mt-1 ${
+        isUser ? "bg-violet-600" : "bg-slate-800"
+      }`}>
+        {isUser
+          ? <User className="size-4 text-white" />
+          : <Bot className="size-4 text-white" />
+        }
       </div>
 
-      {/* Bubble */}
-      <div className={`max-w-[75%] ${isUser ? "items-end" : "items-start"} flex flex-col`}>
-        <div
-          className={`rounded-2xl px-4 py-3 text-sm leading-relaxed ${
-            isUser
-              ? "bg-blue-600 text-white rounded-tr-sm"
-              : message.error
-              ? "bg-red-50 text-red-700 border border-red-200 rounded-tl-sm"
-              : "bg-white border border-slate-200 text-slate-800 rounded-tl-sm shadow-sm"
-          }`}
-        >
-          {message.error && (
-            <AlertCircle className="size-4 inline mr-1.5 mb-0.5" />
-          )}
-          {message.content}
+      <div className={`flex-1 max-w-[80%] space-y-3 ${isUser ? "items-end" : "items-start"} flex flex-col`}>
+        {/* Text bubble */}
+        <div className={`rounded-2xl px-4 py-3 text-sm leading-relaxed ${
+          isUser
+            ? "bg-violet-600 text-white rounded-tr-sm"
+            : msg.error
+              ? "bg-red-50 border border-red-200 text-red-700 rounded-tl-sm"
+              : "bg-white border border-slate-200 text-slate-800 shadow-sm rounded-tl-sm"
+        }`}>
+          {msg.content}
         </div>
-        {!isUser && message.sources && (
-          <div className="w-full mt-1">
-            <SourcesPanel sources={message.sources} />
+
+        {/* Source clips */}
+        {msg.sources && msg.sources.length > 0 && (
+          <div className="w-full space-y-2">
+            <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide flex items-center gap-1.5">
+              <Sparkles className="size-3" />
+              {msg.sources.length} source{msg.sources.length !== 1 ? "s" : ""} from footage
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {msg.sources.map((clip) => (
+                <SourceCard key={clip.event_id} clip={clip} />
+              ))}
+            </div>
           </div>
         )}
       </div>
@@ -127,203 +230,279 @@ function MessageBubble({ message }: { message: ChatMessage }) {
   );
 }
 
-const SUGGESTED_QUESTIONS = [
-  "Were there any high-threat events in the last hour?",
-  "Show me any incidents involving people loitering.",
-  "What happened near the entrance today?",
-  "Any suspicious activity detected overnight?",
+// ── Typing Indicator ──────────────────────────────────────────────────────────
+
+function TypingIndicator() {
+  return (
+    <div className="flex gap-3">
+      <div className="size-8 rounded-full bg-slate-800 flex items-center justify-center shrink-0 mt-1">
+        <Bot className="size-4 text-white" />
+      </div>
+      <div className="bg-white border border-slate-200 rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm">
+        <div className="flex gap-1.5 items-center h-4">
+          {[0, 1, 2].map((i) => (
+            <span
+              key={i}
+              className="size-2 rounded-full bg-slate-400 animate-bounce"
+              style={{ animationDelay: `${i * 150}ms` }}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Main Page ─────────────────────────────────────────────────────────────────
+
+const SUGGESTED = [
+  "Were there any people loitering near the entrance recently?",
+  "Show me all HIGH threat detections from the past hour",
+  "Any suspicious vehicles spotted in the parking lot?",
+  "Summarise all activity on cam-01 today",
 ];
 
 export default function ChatPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [cameraFilter, setCameraFilter] = useState("");
+  const [cameras, setCameras] = useState<CameraItem[]>([]);
+  const [selectedCam, setSelectedCam] = useState("all");
+  const [sourceLimit, setSourceLimit] = useState(6);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
+  // Load cameras for filter
+  useEffect(() => {
+    authFetch("/api/cameras")
+      .then((r) => r.json())
+      .then((d) => setCameras(Array.isArray(d) ? d : []))
+      .catch(() => {});
+  }, []);
+
+  // Auto-scroll on new messages
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
 
-  const sendMessage = async (text: string) => {
-    const trimmed = text.trim();
-    if (!trimmed || loading) return;
+  async function send(text: string) {
+    const q = text.trim();
+    if (!q || loading) return;
 
-    const userMsg: ChatMessage = { role: "user", content: trimmed };
+    const userMsg: ChatMessage = {
+      id: crypto.randomUUID(),
+      role: "user",
+      content: q,
+    };
+
     const history = messages.map((m) => ({ role: m.role, content: m.content }));
-
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
     setLoading(true);
 
     try {
-      const data = await apiFetch<{ answer: string; sources: SourceClip[] }>("/api/chat", {
+      const body: Record<string, unknown> = {
+        message: q,
+        history,
+        limit: sourceLimit,
+      };
+      if (selectedCam !== "all") body.camera_id = selectedCam;
+
+      const res = await authFetch("/api/chat", {
         method: "POST",
-        body: JSON.stringify({
-          message: trimmed,
-          history,
-          camera_id: cameraFilter.trim() || undefined,
-          limit: 6,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
       });
 
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ detail: res.statusText }));
+        throw new Error(err.detail ?? "Request failed");
+      }
+
+      const data = await res.json();
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", content: data.answer, sources: data.sources },
+        {
+          id: crypto.randomUUID(),
+          role: "assistant",
+          content: data.answer,
+          sources: data.sources ?? [],
+        },
       ]);
-    } catch (err: any) {
+    } catch (e) {
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", content: err.message ?? "Request failed.", error: true },
+        {
+          id: crypto.randomUUID(),
+          role: "assistant",
+          content: e instanceof Error ? e.message : "Something went wrong.",
+          error: true,
+        },
       ]);
     } finally {
       setLoading(false);
       inputRef.current?.focus();
     }
-  };
+  }
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+  function handleKey(e: React.KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      sendMessage(input);
+      send(input);
     }
-  };
-
-  const clearChat = () => {
-    setMessages([]);
-    setInput("");
-  };
-
-  const isEmpty = messages.length === 0;
+  }
 
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)] bg-slate-50 font-sans">
-      {/* Header */}
-      <div className="bg-white border-b border-slate-200 px-4 md:px-6 py-3 flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-2">
-          <div className="size-8 rounded-lg bg-slate-800 flex items-center justify-center">
+
+      {/* Top bar */}
+      <div className="shrink-0 bg-white border-b border-slate-200 px-4 md:px-6 py-3 flex items-center gap-4 flex-wrap">
+        <div className="flex items-center gap-2.5">
+          <div className="size-8 rounded-xl bg-slate-900 flex items-center justify-center">
             <Bot className="size-4 text-white" />
           </div>
           <div>
-            <h1 className="text-sm font-semibold text-slate-900">ArgusV Chat</h1>
-            <p className="text-[11px] text-slate-500">Ask about camera footage and events</p>
+            <p className="text-sm font-bold text-slate-900 leading-tight">ArgusV Chat</p>
+            <p className="text-[11px] text-slate-400">Ask questions about your footage</p>
           </div>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="hidden sm:flex items-center gap-2">
-            <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap">
-              Camera
-            </label>
-            <input
-              type="text"
-              value={cameraFilter}
-              onChange={(e) => setCameraFilter(e.target.value)}
-              placeholder="All cameras"
-              title="Filter by camera ID"
-              className="w-32 bg-white border border-slate-200 hover:border-slate-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-lg px-3 py-1.5 text-xs text-slate-700 outline-none"
-            />
+
+        <div className="flex items-center gap-2 ml-auto flex-wrap">
+          {/* Camera filter */}
+          <div className="flex items-center gap-1.5">
+            <Camera className="size-3.5 text-slate-400" />
+            <select
+              value={selectedCam}
+              onChange={(e) => setSelectedCam(e.target.value)}
+              className="text-xs bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-violet-500"
+            >
+              <option value="all">All cameras</option>
+              {cameras.map((c) => (
+                <option key={c.camera_id} value={c.camera_id}>
+                  {c.name} ({c.camera_id})
+                </option>
+              ))}
+            </select>
           </div>
+
+          {/* Source count */}
+          <div className="flex items-center gap-1.5">
+            <Sparkles className="size-3.5 text-slate-400" />
+            <select
+              value={sourceLimit}
+              onChange={(e) => setSourceLimit(Number(e.target.value))}
+              className="text-xs bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-violet-500"
+            >
+              <option value={4}>4 sources</option>
+              <option value={6}>6 sources</option>
+              <option value={10}>10 sources</option>
+            </select>
+          </div>
+
+          {/* Clear */}
           {messages.length > 0 && (
             <button
               type="button"
-              onClick={clearChat}
-              title="Clear conversation"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white hover:bg-red-50 hover:text-red-600 hover:border-red-200 border border-slate-200 text-xs font-medium text-slate-500 transition-colors"
+              onClick={() => setMessages([])}
+              className="flex items-center gap-1 text-xs text-slate-400 hover:text-slate-600 px-2 py-1.5 rounded-lg hover:bg-slate-50 border border-transparent hover:border-slate-200 transition-colors"
             >
-              <Trash2 className="size-3.5" />
-              Clear
+              <X className="size-3.5" />Clear
             </button>
           )}
         </div>
       </div>
 
       {/* Messages area */}
-      <div className="flex-1 overflow-y-auto px-4 md:px-6 py-6 space-y-5">
-        {isEmpty && (
-          <div className="flex flex-col items-center justify-center h-full gap-6 text-center pb-8">
-            <div className="size-16 rounded-2xl bg-slate-800 flex items-center justify-center">
-              <MessageSquare className="size-8 text-white" />
+      <div className="flex-1 overflow-y-auto px-4 md:px-6 py-6 space-y-6">
+
+        {messages.length === 0 && (
+          <div className="flex flex-col items-center justify-center h-full text-center pb-20">
+            <div className="size-16 rounded-2xl bg-slate-900 flex items-center justify-center mb-4 shadow-lg">
+              <Bot className="size-8 text-white" />
             </div>
-            <div>
-              <h2 className="text-lg font-semibold text-slate-800">Ask about your cameras</h2>
-              <p className="text-sm text-slate-500 mt-1 max-w-sm">
-                Search through detected events using natural language. Answers are grounded in real footage summaries.
-              </p>
+            <h2 className="text-xl font-bold text-slate-800 mb-1">ArgusV Security AI</h2>
+            <p className="text-sm text-slate-400 mb-8 max-w-sm">
+              Ask anything about your camera footage. Answers are grounded in real VLM-analysed detections.
+            </p>
+
+            {/* Camera scope indicator */}
+            <div className="mb-6 px-3 py-1.5 rounded-full bg-slate-100 text-xs text-slate-500 flex items-center gap-1.5">
+              <Camera className="size-3" />
+              {selectedCam === "all"
+                ? "Searching across all cameras"
+                : `Filtered to: ${cameras.find(c => c.camera_id === selectedCam)?.name ?? selectedCam}`}
             </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full max-w-lg">
-              {SUGGESTED_QUESTIONS.map((q) => (
+              {SUGGESTED.map((s) => (
                 <button
-                  key={q}
+                  key={s}
                   type="button"
-                  onClick={() => sendMessage(q)}
-                  className="text-left px-4 py-3 rounded-xl bg-white border border-slate-200 hover:border-blue-300 hover:bg-blue-50 text-sm text-slate-700 transition-all shadow-sm"
+                  onClick={() => send(s)}
+                  className="text-left text-sm text-slate-600 bg-white border border-slate-200 rounded-xl px-4 py-3 hover:border-violet-300 hover:bg-violet-50 hover:text-violet-700 transition-colors flex items-start gap-2 shadow-sm"
                 >
-                  {q}
+                  <ChevronRight className="size-3.5 shrink-0 mt-0.5 text-slate-400" />
+                  {s}
                 </button>
               ))}
             </div>
           </div>
         )}
 
-        {messages.map((msg, i) => (
-          <MessageBubble key={i} message={msg} />
+        {messages.map((msg) => (
+          <MessageBubble key={msg.id} msg={msg} />
         ))}
 
-        {loading && (
-          <div className="flex gap-3">
-            <div className="size-8 rounded-full bg-slate-800 flex items-center justify-center shrink-0">
-              <Bot className="size-4 text-white" />
-            </div>
-            <div className="bg-white border border-slate-200 rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm">
-              <div className="flex items-center gap-2 text-slate-500 text-sm">
-                <Loader2 className="size-4 animate-spin" />
-                Searching footage and generating answer...
-              </div>
-            </div>
-          </div>
-        )}
-
+        {loading && <TypingIndicator />}
         <div ref={bottomRef} />
       </div>
 
-      {/* Input bar */}
-      <div className="bg-white border-t border-slate-200 px-4 md:px-6 py-3 shrink-0">
-        <div className="flex items-end gap-3 max-w-4xl mx-auto">
+      {/* Input */}
+      <div className="shrink-0 bg-white border-t border-slate-200 px-4 md:px-6 py-4">
+        {selectedCam !== "all" && (
+          <div className="flex items-center gap-1.5 mb-2 text-[11px] text-violet-600 font-medium">
+            <Camera className="size-3" />
+            Filtering to {cameras.find(c => c.camera_id === selectedCam)?.name ?? selectedCam} only
+            <button
+              type="button"
+              onClick={() => setSelectedCam("all")}
+              className="ml-1 text-slate-400 hover:text-slate-600"
+            >
+              <X className="size-3" />
+            </button>
+          </div>
+        )}
+        <div className="flex items-end gap-3">
           <textarea
             ref={inputRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Ask about camera footage… (Enter to send, Shift+Enter for new line)"
-            title="Chat input"
+            onKeyDown={handleKey}
+            placeholder="Ask about your footage… (Enter to send, Shift+Enter for newline)"
             rows={1}
-            className="flex-1 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-xl px-4 py-3 text-sm text-slate-800 outline-none resize-none transition-all max-h-32 overflow-y-auto"
-            style={{ minHeight: "44px" }}
+            className="flex-1 resize-none bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-400 transition-colors max-h-32 overflow-y-auto"
+            style={{ height: "auto" }}
             onInput={(e) => {
-              const el = e.currentTarget;
+              const el = e.target as HTMLTextAreaElement;
               el.style.height = "auto";
-              el.style.height = Math.min(el.scrollHeight, 128) + "px";
+              el.style.height = `${Math.min(el.scrollHeight, 128)}px`;
             }}
+            disabled={loading}
           />
           <button
             type="button"
-            onClick={() => sendMessage(input)}
+            onClick={() => send(input)}
             disabled={loading || !input.trim()}
-            className="size-11 flex items-center justify-center rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white transition-colors shrink-0"
-            title="Send message"
+            className="size-11 rounded-xl bg-violet-600 hover:bg-violet-700 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center text-white transition-colors shrink-0"
           >
-            {loading ? (
-              <Loader2 className="size-4 animate-spin" />
-            ) : (
-              <Send className="size-4" />
-            )}
+            <Send className="size-4" />
           </button>
         </div>
-        <p className="text-center text-[11px] text-slate-400 mt-2">
-          Answers are grounded in real footage summaries via semantic search
+        <p className="text-[10px] text-slate-400 mt-2 text-center">
+          Answers grounded in VLM-analysed detections · Requires <span className="font-mono">OPENAI_API_KEY</span>
         </p>
       </div>
+
     </div>
   );
 }

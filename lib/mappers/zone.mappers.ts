@@ -1,28 +1,53 @@
+export type ZoneRule = {
+  rule_id: string;
+  zone_id: string;
+  trigger_type: string;
+  severity: string;
+  object_classes: string[];
+  action: string;
+  min_confidence: number;
+  is_active: boolean;
+};
+
 export type ZoneApiResponse = {
   zone_id?: string;
+  camera_id?: string;
   name?: string;
   zone_type?: string;
   dwell_threshold_sec?: number;
   active?: boolean;
   polygon_coords?: [number, number][];
+  rules?: ZoneRule[];
 };
 
 export type ZoneListItem = {
   id: string;
+  camera_id: string;
   name: string;
   type: string;
   dwell: number;
   active: boolean;
   points: number;
   polygonCoords: [number, number][];
+  rules: ZoneRule[];
 };
 
 export type CreateZonePayload = {
+  camera_id: string;
   name: string;
   zone_type: string;
   dwell_threshold_sec: number;
   active: boolean;
   polygon_coords: [number, number][];
+};
+
+export type CreateRulePayload = {
+  trigger_type: string;
+  severity: string;
+  object_classes: string[];
+  action: string;
+  min_confidence: number;
+  is_active: boolean;
 };
 
 export function mapZoneToListItem(
@@ -41,12 +66,14 @@ export function mapZoneToListItem(
 
   return {
     id: zone.zone_id ?? `zone-${index}`,
+    camera_id: zone.camera_id ?? "unknown",
     name: zone.name ?? "Unnamed Zone",
     type: zone.zone_type ?? "security",
     dwell: Number(zone.dwell_threshold_sec ?? 0),
     active: Boolean(zone.active),
     points: polygonCoords.length,
     polygonCoords,
+    rules: zone.rules ?? [],
   };
 }
 

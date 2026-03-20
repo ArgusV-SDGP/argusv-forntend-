@@ -9,7 +9,7 @@ import {
   NavigationMenuItem,
   NavigationMenuLink,
 } from "@/components/ui/navigation-menu-1";
-import { LayoutGrid, Bell, Menu, X, LogOut, UserRound } from "lucide-react";
+import { LayoutGrid, Bell, Menu, X, LogOut, UserRound, Bot, Settings } from "lucide-react";
 import { fetchMe, logout } from "@/lib/client-services/auth.service";
 
 export function NavigationBar() {
@@ -109,9 +109,18 @@ export function NavigationBar() {
             </Link>
           </NavigationMenuItem>
           <NavigationMenuItem>
-            <Link href="/incidents" legacyBehavior passHref>
-              <NavigationMenuLink className={getLinkStyle("/incidents")}>
-                Incidents
+            <Link href="/detections" legacyBehavior passHref>
+              <NavigationMenuLink className={getLinkStyle("/detections")}>
+                Detections
+              </NavigationMenuLink>
+            </Link>
+          </NavigationMenuItem>
+          <NavigationMenuItem>
+            <Link href="/chat" legacyBehavior passHref>
+              <NavigationMenuLink className={getLinkStyle("/chat")}>
+                <span className="flex items-center gap-1.5">
+                  <Bot className="size-3.5" />Chat
+                </span>
               </NavigationMenuLink>
             </Link>
           </NavigationMenuItem>
@@ -122,6 +131,17 @@ export function NavigationBar() {
               </NavigationMenuLink>
             </Link>
           </NavigationMenuItem>
+          {isAdmin && (
+            <NavigationMenuItem>
+              <Link href="/admin" legacyBehavior passHref>
+                <NavigationMenuLink className={getLinkStyle("/admin")}>
+                  <span className="flex items-center gap-1.5">
+                    <Settings className="size-3.5" />Admin
+                  </span>
+                </NavigationMenuLink>
+              </Link>
+            </NavigationMenuItem>
+          )}
         </NavigationMenuList>
       </NavigationMenu>
 
@@ -214,11 +234,18 @@ export function NavigationBar() {
               Recordings
             </Link>
             <Link
-              href="/incidents"
+              href="/detections"
               onClick={() => setIsMobileMenuOpen(false)}
-              className={`p-2 rounded-md ${pathname?.startsWith("/incidents") ? "bg-accent text-foreground font-medium" : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"}`}
+              className={`p-2 rounded-md ${pathname?.startsWith("/detections") ? "bg-accent text-foreground font-medium" : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"}`}
             >
-              Incidents
+              Detections
+            </Link>
+            <Link
+              href="/chat"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={`p-2 rounded-md ${pathname?.startsWith("/chat") ? "bg-accent text-foreground font-medium" : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"}`}
+            >
+              Chat
             </Link>
             <Link
               href="/zones"
@@ -227,6 +254,15 @@ export function NavigationBar() {
             >
               Zones
             </Link>
+            {isAdmin && (
+              <Link
+                href="/admin"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`p-2 rounded-md ${pathname?.startsWith("/admin") ? "bg-accent text-foreground font-medium" : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"}`}
+              >
+                Admin
+              </Link>
+            )}
           </nav>
         </div>
       )}
