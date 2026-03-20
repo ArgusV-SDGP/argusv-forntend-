@@ -9,8 +9,7 @@ import {
 } from "lucide-react";
 
 import {
-  getCameraZones,
-  type CameraZone,
+  getAssignedCameraZones,
   type CameraZonesResponse,
   type ZoneViewMode,
 } from "@/lib/client-services/camera-zones.service";
@@ -36,7 +35,6 @@ export function MainCameraGridClient({ cameras }: MainCameraGridClientProps) {
   const [selectedCameraId, setSelectedCameraId] = useState<string>(initialCameraId);
   const [viewMode, setViewMode] = useState<ZoneViewMode>("without_zones");
   const [selectedZoneIds, setSelectedZoneIds] = useState<string[]>([]);
-  const [allZonesChecked, setAllZonesChecked] = useState(false);
   const [zoneData, setZoneData] = useState<CameraZonesResponse | null>(null);
   const [zonesLoading, setZonesLoading] = useState(false);
   const [zonesError, setZonesError] = useState<string | null>(null);
@@ -126,91 +124,80 @@ export function MainCameraGridClient({ cameras }: MainCameraGridClientProps) {
   useEffect(() => {
     if (!selectedCameraId) return;
 
-    const controller = new AbortController();
-    const hasSubset = viewMode === "with_zones" && selectedZoneIds.length > 0 && !allZonesChecked;
+    let cancelled = false;
 
     async function loadZones() {
       setZonesLoading(true);
       setZonesError(null);
+      setZoneData(null);
 
       try {
-        const response = await getCameraZones(selectedCameraId, {
-          view: viewMode,
-          selection: viewMode === "with_zones" ? "all" : undefined,
-          zoneIds: hasSubset ? selectedZoneIds : undefined,
-          activeOnly: true,
-        });
-
-        if (controller.signal.aborted) return;
+        const response = await getAssignedCameraZones(selectedCameraId);
+        if (cancelled) return;
 
         setZoneData(response);
-        if (viewMode === "with_zones" && selectedZoneIds.length === 0) {
-          setSelectedZoneIds(response.available_zone_ids ?? []);
-          setAllZonesChecked(true);
-        }
+
+        const ids =
+          response.available_zone_ids?.length
+            ? response.available_zone_ids
+            : response.zones?.map((z) => z.zone_id) ?? [];
+        setSelectedZoneIds(ids);
       } catch (error) {
-        if (controller.signal.aborted) return;
-        const message = error instanceof Error ? error.message : "Failed to load zone overlays";
+        if (cancelled) return;
+        const message = error instanceof Error ? error.message : "Failed to load camera zones";
         setZonesError(message);
         setZoneData(null);
+        setSelectedZoneIds([]);
       } finally {
-        if (!controller.signal.aborted) {
-          setZonesLoading(false);
-        }
+        if (!cancelled) setZonesLoading(false);
       }
     }
 
     loadZones();
 
-    return () => controller.abort();
-  }, [allZonesChecked, selectedCameraId, selectedZoneIds, viewMode]);
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedCameraId]);
 
   const selectedCamera = React.useMemo(
     () => cameras.find((camera) => camera.cameraId === selectedCameraId) ?? null,
     [cameras, selectedCameraId],
   );
 
-  const availableZoneIds = zoneData?.available_zone_ids ?? [];
-  const allZonesSelected =
-    availableZoneIds.length > 0 &&
-    allZonesChecked;
+  const availableZoneIds = React.useMemo(() => {
+    if (!zoneData) return [];
+    if (zoneData.available_zone_ids?.length) return zoneData.available_zone_ids;
+    return zoneData.zones?.map((z) => z.zone_id) ?? [];
+  }, [zoneData]);
+
+  const allZonesSelected = availableZoneIds.length > 0 && selectedZoneIds.length === availableZoneIds.length;
   const visibleZones = React.useMemo(() => {
-    const selectedZonesSet = new Set(selectedZoneIds);
     if (!zoneData?.zones) return [];
     if (viewMode !== "with_zones") return [];
-    if (selectedZoneIds.length === 0) return zoneData.zones;
+    if (selectedZoneIds.length === 0) return [];
+    const selectedZonesSet = new Set(selectedZoneIds);
     return zoneData.zones.filter((zone) => selectedZonesSet.has(zone.zone_id));
   }, [selectedZoneIds, viewMode, zoneData?.zones]);
 
   function toggleZone(zoneId: string) {
-    setSelectedZoneIds((prev) => {
-      if (prev.includes(zoneId)) {
-        setAllZonesChecked(false);
-        return prev.filter((id) => id !== zoneId);
-      }
-      setAllZonesChecked(false);
-      return [...prev, zoneId];
-    });
+    setSelectedZoneIds((prev) => (prev.includes(zoneId) ? prev.filter((id) => id !== zoneId) : [...prev, zoneId]));
   }
 
   function toggleSelectAll() {
     if (allZonesSelected) {
       setSelectedZoneIds([]);
-      setAllZonesChecked(false);
       return;
     }
     setSelectedZoneIds(availableZoneIds);
-    setAllZonesChecked(true);
   }
-
-  function formatBBox(zone: CameraZone) {
+  function formatBBox(zone: CameraZonesResponse["zones"][number]) {
     const src = zoneData?.frame?.width && zoneData?.frame?.height ? zone.bbox_px : zone.bbox_norm;
     if (!src) return "N/A";
 
-    const parts = Object.entries(src)
+    return Object.entries(src)
       .map(([key, value]) => `${key}: ${value ?? "N/A"}`)
       .join(", ");
-    return parts || "N/A";
   }
 
   return (
@@ -225,7 +212,7 @@ export function MainCameraGridClient({ cameras }: MainCameraGridClientProps) {
                 onChange={(event) => {
                   setSelectedCameraId(event.target.value);
                   setSelectedZoneIds([]);
-                  setAllZonesChecked(false);
+                  setZoneData(null);
                 }}
                 className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200"
               >
@@ -244,8 +231,6 @@ export function MainCameraGridClient({ cameras }: MainCameraGridClientProps) {
                   type="button"
                   onClick={() => {
                     setViewMode("without_zones");
-                    setSelectedZoneIds([]);
-                    setAllZonesChecked(false);
                   }}
                   className={`rounded px-3 py-1.5 text-xs font-semibold transition ${
                     viewMode === "without_zones"
@@ -272,37 +257,43 @@ export function MainCameraGridClient({ cameras }: MainCameraGridClientProps) {
 
           {viewMode === "with_zones" ? (
             <div className="mt-3 rounded-md border border-slate-200 bg-slate-50 p-3">
-              <button
-                type="button"
-                onClick={toggleSelectAll}
-                className="flex items-center gap-2 text-sm font-medium text-slate-700"
-              >
-                {allZonesSelected ? (
-                  <CheckSquare className="size-4 text-emerald-600" />
-                ) : (
-                  <Square className="size-4 text-slate-500" />
-                )}
-                Select All
-              </button>
-              <div className="mt-2 grid max-h-36 grid-cols-1 gap-2 overflow-y-auto pr-1 sm:grid-cols-2">
-                {(zoneData?.zones ?? []).map((zone) => {
-                  const checked = selectedZoneIds.includes(zone.zone_id);
-                  return (
-                    <label
-                      key={zone.zone_id}
-                      className="flex items-center gap-2 rounded border border-slate-200 bg-white px-2 py-1.5 text-sm text-slate-700"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={checked}
-                        onChange={() => toggleZone(zone.zone_id)}
-                        className="size-4 rounded border-slate-300 text-sky-600 focus:ring-sky-400"
-                      />
-                      <span className="truncate">{zone.name || zone.zone_id}</span>
-                    </label>
-                  );
-                })}
-              </div>
+              {zoneData?.zone_count && zoneData.zone_count > 0 ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={toggleSelectAll}
+                    className="flex items-center gap-2 text-sm font-medium text-slate-700"
+                  >
+                    {allZonesSelected ? (
+                      <CheckSquare className="size-4 text-emerald-600" />
+                    ) : (
+                      <Square className="size-4 text-slate-500" />
+                    )}
+                    Select All
+                  </button>
+                  <div className="mt-2 grid max-h-36 grid-cols-1 gap-2 overflow-y-auto pr-1 sm:grid-cols-2">
+                    {zoneData.zones.map((zone) => {
+                      const checked = selectedZoneIds.includes(zone.zone_id);
+                      return (
+                        <label
+                          key={zone.zone_id}
+                          className="flex items-center gap-2 rounded border border-slate-200 bg-white px-2 py-1.5 text-sm text-slate-700"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={() => toggleZone(zone.zone_id)}
+                            className="size-4 rounded border-slate-300 text-sky-600 focus:ring-sky-400"
+                          />
+                          <span className="truncate">{zone.name || zone.zone_id}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </>
+              ) : !zonesLoading && !zonesError ? (
+                <p className="text-sm text-slate-500">No zones assigned to this camera.</p>
+              ) : null}
             </div>
           ) : null}
         </div>
@@ -367,15 +358,15 @@ export function MainCameraGridClient({ cameras }: MainCameraGridClientProps) {
             </div>
           ) : null}
 
-          {!zonesLoading && !zonesError && viewMode === "with_zones" && visibleZones.length === 0 ? (
-            <p className="text-sm text-slate-500">No zones available for this selection.</p>
+          {!zonesLoading && !zonesError && zoneData?.zone_count === 0 ? (
+            <p className="text-sm text-slate-500">No zones assigned to this camera.</p>
           ) : null}
 
           {!zonesLoading && !zonesError && viewMode === "without_zones" ? (
             <p className="text-sm text-slate-500">Zone overlays are currently hidden.</p>
           ) : null}
 
-          {visibleZones.map((zone) => (
+          {!zonesLoading && !zonesError && viewMode === "with_zones" && visibleZones.map((zone) => (
             <article key={zone.zone_id} className="rounded-md border border-slate-200 bg-slate-50 p-3">
               <div className="flex items-center justify-between gap-2">
                 <p className="truncate text-sm font-semibold text-slate-800">{zone.name || "Unnamed Zone"}</p>
@@ -403,6 +394,10 @@ export function MainCameraGridClient({ cameras }: MainCameraGridClientProps) {
                 <div>
                   <dt className="font-medium text-slate-500">Zone ID</dt>
                   <dd className="break-all">{zone.zone_id}</dd>
+                </div>
+                <div>
+                  <dt className="font-medium text-slate-500">Camera ID</dt>
+                  <dd className="break-all">{zone.camera_id ?? selectedCameraId}</dd>
                 </div>
                 <div>
                   <dt className="font-medium text-slate-500">

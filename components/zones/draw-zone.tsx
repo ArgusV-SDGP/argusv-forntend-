@@ -20,6 +20,8 @@ type DrawZoneProps = {
   isCreating: boolean;
   formError: string;
   formSuccess: string;
+  camerasLoading?: boolean;
+  camerasError?: string;
 };
 
 const TRIGGER_TYPES = [
@@ -62,6 +64,8 @@ export function DrawZone({
   isCreating,
   formError,
   formSuccess,
+  camerasLoading = false,
+  camerasError = "",
 }: DrawZoneProps) {
   const [points, setPoints] = useState<Point[]>([]);
   const [isFinished, setIsFinished] = useState(false);
@@ -76,6 +80,13 @@ export function DrawZone({
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [stageSize, setStageSize] = useState({ width: 0, height: 0 });
+
+  useEffect(() => {
+    if (selectedCam) return;
+    if (Array.isArray(cameras) && cameras.length > 0) {
+      setSelectedCam(cameras[0].camera_id);
+    }
+  }, [cameras, selectedCam]);
 
   // Resize observer for the canvas container
   useEffect(() => {
@@ -156,8 +167,21 @@ export function DrawZone({
     event.preventDefault();
     setValidationError("");
 
+    if (camerasError) {
+      setValidationError(camerasError);
+      return;
+    }
+
     if (!zoneName.trim()) {
       setValidationError("Zone name is required.");
+      return;
+    }
+    if (!selectedCam) {
+      setValidationError("Please select a camera to create this zone.");
+      return;
+    }
+    if (!cameras.some((c) => c.camera_id === selectedCam)) {
+      setValidationError("Invalid camera selection.");
       return;
     }
     if (points.length < 3) {
@@ -170,6 +194,7 @@ export function DrawZone({
     }
 
     const zonePayload: CreateZonePayload = {
+      camera_id: selectedCam,
       name: zoneName.trim(),
       zone_type: zoneType,
       dwell_threshold_sec: Math.max(1, dwellSec),
@@ -214,9 +239,10 @@ export function DrawZone({
             <select
               value={selectedCam}
               onChange={(e) => setSelectedCam(e.target.value)}
-              className="text-sm bg-white border border-slate-200 rounded-lg px-3 py-2 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-[160px]"
+              disabled={camerasLoading || !!camerasError}
+              className="text-sm bg-white border border-slate-200 rounded-lg px-3 py-2 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-[200px] disabled:opacity-50"
             >
-              <option value="">No preview</option>
+              <option value="">{camerasLoading ? "Loading cameras..." : "Select camera *"}</option>
               {cameras.map((c) => (
                 <option key={c.camera_id} value={c.camera_id}>
                   {c.name} ({c.camera_id})
@@ -479,6 +505,7 @@ export function DrawZone({
         {/* Feedback */}
         <div className="text-sm space-y-1">
           {validationError && <p className="text-amber-600">{validationError}</p>}
+          {camerasError && <p className="text-red-600">{camerasError}</p>}
           {formError && <p className="text-red-600">{formError}</p>}
           {!formError && !validationError && formSuccess && <p className="text-green-600">{formSuccess}</p>}
           {!formError && !validationError && !formSuccess && (
@@ -496,7 +523,14 @@ export function DrawZone({
 
         <button
           type="submit"
-          disabled={isCreating || points.length < 3 || !isFinished}
+          disabled={
+            isCreating ||
+            points.length < 3 ||
+            !isFinished ||
+            !selectedCam ||
+            camerasLoading ||
+            !!camerasError
+          }
           className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Plus className="size-5" />
