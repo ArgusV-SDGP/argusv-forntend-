@@ -2,7 +2,15 @@
 
 import React, { useState } from "react";
 import {
-  Activity, RefreshCw, Trash2, Clock, Shield, ChevronDown, ChevronUp, AlertTriangle,
+  Activity,
+  RefreshCw,
+  Trash2,
+  Clock,
+  Shield,
+  ChevronDown,
+  ChevronUp,
+  AlertTriangle,
+  Camera,
 } from "lucide-react";
 import type { ZoneListItem, ZoneRule } from "@/lib/mappers/zone.mappers";
 
@@ -110,6 +118,10 @@ export function ZoneList({
                         <Clock className="size-3" />{zone.dwell}s dwell
                       </span>
                     )}
+                    <span className="flex items-center gap-1">
+                      <Camera className="size-3 text-slate-400" />
+                      Camera: <span className="font-mono">{zone.camera_id}</span>
+                    </span>
                     <span>{zone.points} pts</span>
                     <span className="flex items-center gap-1">
                       <Shield className="size-3 text-indigo-400" />
