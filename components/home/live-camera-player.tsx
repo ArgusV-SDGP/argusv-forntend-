@@ -27,6 +27,7 @@ type LiveCameraPlayerProps = {
     zone_id: string;
     name: string;
     polygon_coords: [number, number][];
+    camera_id?: string | null;
     bbox_norm?: Record<string, number | null> | null;
     bbox_px?: Record<string, number | null> | null;
   }[];
@@ -200,10 +201,12 @@ export function LiveCameraPlayer({
           } else {
             const normRect = getBBoxRect(zone.bbox_norm);
             if (normRect) {
-              const rx = normRect.x * cW;
-              const ry = normRect.y * cH;
-              const rw = normRect.w * cW;
-              const rh = normRect.h * cH;
+              // bbox_norm coordinates are normalized to the base frame size.
+              // Convert to base-frame pixels, then apply object-cover scaling + letterboxing.
+              const rx = normRect.x * baseFrameW * baseScale + baseOx;
+              const ry = normRect.y * baseFrameH * baseScale + baseOy;
+              const rw = normRect.w * baseFrameW * baseScale;
+              const rh = normRect.h * baseFrameH * baseScale;
               ctx.strokeStyle = stroke;
               ctx.lineWidth = 2;
               ctx.setLineDash([6, 4]);

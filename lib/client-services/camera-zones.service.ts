@@ -6,6 +6,7 @@ export type ZoneSelectionMode = "all" | "assigned";
 type ZoneBBox = Record<string, number | null>;
 
 export type CameraZone = {
+  camera_id?: string | null;
   zone_id: string;
   name: string;
   polygon_coords: [number, number][];
@@ -70,4 +71,12 @@ export async function getCameraZones(
   }
 
   return (await response.json()) as CameraZonesResponse;
+}
+
+export async function getAssignedCameraZones(cameraId: string) {
+  return getCameraZones(cameraId, {
+    view: "with_zones",
+    selection: "assigned",
+    activeOnly: true,
+  });
 }
