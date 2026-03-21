@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import {
-  Activity, RefreshCw, Trash2, Clock, Shield, ChevronDown, ChevronUp, AlertTriangle,
+  Activity, RefreshCw, Trash2, Clock, Shield, ChevronDown, ChevronUp, AlertTriangle, Tag,
 } from "lucide-react";
 import type { ZoneListItem, ZoneRule } from "@/lib/mappers/zone.mappers";
 
@@ -115,6 +115,12 @@ export function ZoneList({
                       <Shield className="size-3 text-indigo-400" />
                       {zone.rules.length} rule{zone.rules.length !== 1 ? "s" : ""}
                     </span>
+                    {zone.allowedClasses && zone.allowedClasses.length > 0 && (
+                      <span className="flex items-center gap-1 text-teal-600">
+                        <Tag className="size-3" />
+                        {zone.allowedClasses.join(", ")}
+                      </span>
+                    )}
                   </div>
                 </div>
 

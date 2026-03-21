@@ -4,7 +4,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { authFetch } from "@/lib/client-services/auth.service";
 import {
   Settings, Shield, Bell, RefreshCw, Save, Trash2, Plus, ChevronDown, ChevronUp,
-  AlertTriangle, Cpu, Database,
+  AlertTriangle, Cpu, Database, Camera, X,
 } from "lucide-react";
 
 // ── types ─────────────────────────────────────────────────────────────────────
@@ -523,6 +523,244 @@ function NotifSection() {
   );
 }
 
+// ── Camera Detection Config ────────────────────────────────────────────────────
+
+type CameraItem = {
+  camera_id: string;
+  name: string;
+  status: string;
+  detect_config: Record<string, unknown> | null;
+};
+
+const DETECT_CLASS_OPTIONS = ["person", "car", "truck", "bus", "motorcycle", "bicycle"];
+
+function CameraConfigSection() {
+  const [cameras, setCameras] = useState<CameraItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [expandedCam, setExpandedCam] = useState<string | null>(null);
+  const [drafts, setDrafts] = useState<Record<string, Record<string, unknown>>>({});
+  const [saving, setSaving] = useState<string | null>(null);
+  const [msgs, setMsgs] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await apiFetch<CameraItem[]>("/api/cameras");
+      setCameras(data);
+      // initialise drafts from current detect_config
+      const init: Record<string, Record<string, unknown>> = {};
+      for (const cam of data) {
+        init[cam.camera_id] = buildDraft(cam.detect_config);
+      }
+      setDrafts(init);
+    } catch { /* ignore */ } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { void load(); }, [load]);
+
+  function buildDraft(cfg: Record<string, unknown> | null): Record<string, unknown> {
+    return {
+      detect_classes_str: cfg?.detect_classes
+        ? Object.values(cfg.detect_classes as Record<string, string>).join(", ")
+        : "",
+      conf_threshold: cfg?.conf_threshold ?? "",
+      detect_fps: cfg?.detect_fps ?? "",
+      use_motion_gate: cfg?.use_motion_gate ?? "",
+      loiter_sec: cfg?.loiter_sec ?? "",
+    };
+  }
+
+  function toggleClass(camId: string, cls: string) {
+    setDrafts((prev) => {
+      const cur = String(prev[camId]?.detect_classes_str ?? "")
+        .split(",").map((s) => s.trim()).filter(Boolean);
+      const next = cur.includes(cls) ? cur.filter((c) => c !== cls) : [...cur, cls];
+      return { ...prev, [camId]: { ...prev[camId], detect_classes_str: next.join(", ") } };
+    });
+  }
+
+  async function handleSave(cam: CameraItem) {
+    setSaving(cam.camera_id);
+    setMsgs((m) => ({ ...m, [cam.camera_id]: "" }));
+    setErrors((e) => ({ ...e, [cam.camera_id]: "" }));
+
+    const d = drafts[cam.camera_id] ?? {};
+    const classStr = String(d.detect_classes_str ?? "").trim();
+
+    // Build detect_config — omit empty fields (they fall back to global defaults)
+    const detect_config: Record<string, unknown> = {};
+    if (classStr) {
+      // convert "person, car" → {"0":"person","2":"car"} via backend key lookup
+      // we send as name list and let backend resolve — store as {name:name} for now
+      const names = classStr.split(",").map((s) => s.trim()).filter(Boolean);
+      const classMap: Record<string, string> = {};
+      names.forEach((n, i) => { classMap[String(i)] = n; });
+      detect_config.detect_classes = classMap;
+    }
+    if (d.conf_threshold !== "") detect_config.conf_threshold = Number(d.conf_threshold);
+    if (d.detect_fps !== "") detect_config.detect_fps = Number(d.detect_fps);
+    if (d.use_motion_gate !== "") detect_config.use_motion_gate = d.use_motion_gate === true || d.use_motion_gate === "true";
+    if (d.loiter_sec !== "") detect_config.loiter_sec = Number(d.loiter_sec);
+
+    try {
+      const updated = await apiFetch<CameraItem>(`/api/cameras/${cam.camera_id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ detect_config: Object.keys(detect_config).length ? detect_config : null }),
+      });
+      setCameras((prev) => prev.map((c) => c.camera_id === cam.camera_id ? updated : c));
+      setMsgs((m) => ({ ...m, [cam.camera_id]: "Saved. Restarts take effect on next detection cycle." }));
+    } catch (e) {
+      setErrors((err) => ({ ...err, [cam.camera_id]: e instanceof Error ? e.message : "Save failed" }));
+    } finally {
+      setSaving(null);
+    }
+  }
+
+  function handleClear(cam: CameraItem) {
+    setDrafts((prev) => ({ ...prev, [cam.camera_id]: buildDraft(null) }));
+  }
+
+  return (
+    <Section title="Camera Detection Config" icon={<Camera className="size-4 text-violet-500" />} defaultOpen={false}>
+      {loading ? (
+        <p className="text-sm text-slate-400">Loading cameras…</p>
+      ) : cameras.length === 0 ? (
+        <p className="text-sm text-slate-400 italic">No cameras found.</p>
+      ) : (
+        <div className="space-y-3">
+          {cameras.map((cam) => {
+            const expanded = expandedCam === cam.camera_id;
+            const d = drafts[cam.camera_id] ?? {};
+            const activeClasses = String(d.detect_classes_str ?? "")
+              .split(",").map((s) => s.trim()).filter(Boolean);
+            const hasOverride = cam.detect_config !== null;
+
+            return (
+              <div key={cam.camera_id} className="border border-slate-200 rounded-xl overflow-hidden">
+                {/* Camera row header */}
+                <button
+                  type="button"
+                  onClick={() => setExpandedCam(expanded ? null : cam.camera_id)}
+                  className="w-full flex items-center gap-3 px-4 py-3 bg-slate-50 hover:bg-slate-100 text-left transition-colors"
+                >
+                  <div className={`size-2 rounded-full shrink-0 ${cam.status === "online" ? "bg-green-500" : "bg-slate-300"}`} />
+                  <div className="flex-1 min-w-0">
+                    <span className="text-sm font-semibold text-slate-800">{cam.name}</span>
+                    <span className="ml-2 text-[10px] font-mono text-slate-400">{cam.camera_id}</span>
+                  </div>
+                  {hasOverride ? (
+                    <span className="shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded bg-violet-50 text-violet-600 border border-violet-200">
+                      custom config
+                    </span>
+                  ) : (
+                    <span className="shrink-0 text-[10px] text-slate-400">global defaults</span>
+                  )}
+                  {expanded ? <ChevronUp className="size-4 text-slate-400 shrink-0" /> : <ChevronDown className="size-4 text-slate-400 shrink-0" />}
+                </button>
+
+                {/* Expanded editor */}
+                {expanded && (
+                  <div className="p-4 space-y-4 border-t border-slate-100">
+                    <p className="text-[11px] text-slate-400">
+                      Leave fields empty to inherit from global defaults. Saved config takes effect on next app restart.
+                    </p>
+
+                    {/* Detect classes toggle */}
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Detect Classes</label>
+                      <div className="flex gap-2 flex-wrap">
+                        {DETECT_CLASS_OPTIONS.map((cls) => {
+                          const active = activeClasses.includes(cls);
+                          return (
+                            <button key={cls} type="button"
+                              onClick={() => toggleClass(cam.camera_id, cls)}
+                              className={`px-3 py-1.5 rounded-lg text-xs font-semibold border capitalize transition-colors ${
+                                active
+                                  ? "bg-violet-600 text-white border-violet-600"
+                                  : "bg-white text-slate-500 border-slate-200 hover:border-violet-300"
+                              }`}>
+                              {cls}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      {activeClasses.length > 0 && (
+                        <p className="text-[10px] text-violet-700">Detecting: {activeClasses.join(", ")}</p>
+                      )}
+                    </div>
+
+                    {/* Numeric overrides */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      {[
+                        { key: "conf_threshold", label: "Confidence Threshold", placeholder: "e.g. 0.45", step: "0.05" },
+                        { key: "detect_fps", label: "Detect FPS", placeholder: "e.g. 5", step: "1" },
+                        { key: "loiter_sec", label: "Loiter Threshold (s)", placeholder: "e.g. 30", step: "1" },
+                      ].map(({ key, label, placeholder, step }) => (
+                        <div key={key} className="space-y-1">
+                          <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">{label}</label>
+                          <input
+                            type="number"
+                            step={step}
+                            value={String(d[key] ?? "")}
+                            onChange={(e) => setDrafts((prev) => ({
+                              ...prev,
+                              [cam.camera_id]: { ...prev[cam.camera_id], [key]: e.target.value },
+                            }))}
+                            placeholder={placeholder}
+                            className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-1 focus:ring-violet-500"
+                          />
+                        </div>
+                      ))}
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">Motion Gate</label>
+                        <select
+                          value={String(d.use_motion_gate ?? "")}
+                          onChange={(e) => setDrafts((prev) => ({
+                            ...prev,
+                            [cam.camera_id]: { ...prev[cam.camera_id], use_motion_gate: e.target.value },
+                          }))}
+                          className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-1 focus:ring-violet-500"
+                        >
+                          <option value="">inherit</option>
+                          <option value="true">Enabled</option>
+                          <option value="false">Disabled</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {msgs[cam.camera_id] && <p className="text-sm text-green-600">{msgs[cam.camera_id]}</p>}
+                    {errors[cam.camera_id] && <p className="text-sm text-red-600">{errors[cam.camera_id]}</p>}
+
+                    <div className="flex gap-3">
+                      <button type="button" onClick={() => handleSave(cam)}
+                        disabled={saving === cam.camera_id}
+                        className="flex items-center gap-2 px-5 py-2 rounded-lg bg-violet-600 hover:bg-violet-700 text-white text-sm font-medium disabled:opacity-50">
+                        <Save className="size-4" />
+                        {saving === cam.camera_id ? "Saving…" : "Save Overrides"}
+                      </button>
+                      {hasOverride && (
+                        <button type="button" onClick={() => handleClear(cam)}
+                          title="Reset to global defaults"
+                          className="flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 bg-white hover:bg-red-50 hover:border-red-200 hover:text-red-600 text-sm font-medium text-slate-600">
+                          <X className="size-4" /> Clear Overrides
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </Section>
+  );
+}
+
 // ── Page ──────────────────────────────────────────────────────────────────────
 export default function AdminPage() {
   return (
@@ -543,6 +781,7 @@ export default function AdminPage() {
         </div>
 
         <RuntimeSection />
+        <CameraConfigSection />
         <RagSection />
         <NotifSection />
       </div>

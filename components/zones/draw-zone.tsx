@@ -34,7 +34,7 @@ const SEVERITY_OPTIONS = [
   { value: "LOW",    label: "Low",    cls: "text-yellow-600 bg-yellow-50 border-yellow-200" },
 ];
 
-const OBJECT_CLASSES = ["person", "car", "truck"];
+const OBJECT_CLASSES = ["person", "car", "truck", "bus", "motorcycle"];
 
 type RuleFormState = {
   trigger_type: string;
@@ -72,6 +72,8 @@ export function DrawZone({
   const [zoneType, setZoneType] = useState("security");
   const [dwellSec, setDwellSec] = useState(30);
   const [zoneActive, setZoneActive] = useState(true);
+  // null = allow all globally configured classes; non-empty array = restrict to these
+  const [allowedClasses, setAllowedClasses] = useState<string[]>([]);
   const [validationError, setValidationError] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -175,6 +177,8 @@ export function DrawZone({
       dwell_threshold_sec: Math.max(1, dwellSec),
       active: zoneActive,
       polygon_coords: getNormalizedPoints(points),
+      // empty [] means "allow all" — send null; non-empty sends the filter list
+      allowed_classes: allowedClasses.length > 0 ? allowedClasses : null,
     };
 
     const rulePayloads: CreateRulePayload[] = rules.map((r) => ({ ...r }));
@@ -188,6 +192,7 @@ export function DrawZone({
       setZoneType("security");
       setDwellSec(30);
       setZoneActive(true);
+      setAllowedClasses([]);
     }
   }
 
@@ -359,6 +364,39 @@ export function DrawZone({
               <option value="false">Inactive</option>
             </select>
           </div>
+        </div>
+
+        {/* Zone-level object class filter */}
+        <div className="space-y-2">
+          <label className="text-xs font-semibold text-slate-500 tracking-wide uppercase flex items-center gap-1.5">
+            Allowed Object Classes
+            <span className="text-[10px] font-normal text-slate-400 normal-case tracking-normal">
+              (leave empty = all classes; select to restrict this zone)
+            </span>
+          </label>
+          <div className="flex gap-2 flex-wrap">
+            {OBJECT_CLASSES.map((cls) => {
+              const active = allowedClasses.includes(cls);
+              return (
+                <button key={cls} type="button"
+                  onClick={() => setAllowedClasses((prev) =>
+                    active ? prev.filter((c) => c !== cls) : [...prev, cls]
+                  )}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold border capitalize transition-colors ${
+                    active
+                      ? "bg-teal-600 text-white border-teal-600"
+                      : "bg-white text-slate-500 border-slate-200 hover:border-teal-300 hover:text-teal-600"
+                  }`}>
+                  {cls}
+                </button>
+              );
+            })}
+          </div>
+          {allowedClasses.length > 0 && (
+            <p className="text-[10px] text-teal-700 bg-teal-50 border border-teal-100 rounded px-2 py-1">
+              Only <strong>{allowedClasses.join(", ")}</strong> will trigger alerts in this zone.
+            </p>
+          )}
         </div>
 
         {/* Threat Rules section */}
