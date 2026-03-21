@@ -11,7 +11,7 @@ export function AdminPageHeader() {
       <div>
         <h1 className="text-xl font-bold text-slate-900">Admin Configuration</h1>
         <p className="text-xs text-slate-500">
-          Runtime tuning · RAG settings · Notification rules
+          Cameras · Runtime · VLM prompts · Notifications
         </p>
       </div>
       <span className="ml-auto flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">

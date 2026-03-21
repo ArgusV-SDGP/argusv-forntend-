@@ -1,0 +1,95 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Teal glow filter -->
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <!-- Subtle inner glow for iris -->
+    <radialGradient id="irisGrad" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#18ffbe" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#18ffbe" stop-opacity="0"/>
+    </radialGradient>
+    <!-- Pupil gradient -->
+    <radialGradient id="pupilGrad" cx="40%" cy="35%" r="70%">
+      <stop offset="0%" stop-color="#1a1a1a"/>
+      <stop offset="100%" stop-color="#050505"/>
+    </radialGradient>
+    <!-- Background gradient -->
+    <radialGradient id="bgGrad" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#111111"/>
+      <stop offset="100%" stop-color="#050505"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Outer hexagon background -->
+  <polygon
+    points="100,8 182,54 182,146 100,192 18,146 18,54"
+    fill="url(#bgGrad)"
+    stroke="#18ffbe"
+    stroke-width="2.5"
+    stroke-linejoin="round"
+  />
+
+  <!-- Subtle inner hex ring -->
+  <polygon
+    points="100,22 168,61 168,139 100,178 32,139 32,61"
+    fill="none"
+    stroke="#18ffbe"
+    stroke-width="0.6"
+    stroke-opacity="0.15"
+    stroke-linejoin="round"
+  />
+
+  <!-- Eye almond shape — top arc -->
+  <path
+    d="M38,100 Q100,52 162,100 Q100,148 38,100 Z"
+    fill="#0d0d0d"
+    stroke="#18ffbe"
+    stroke-width="2"
+    filter="url(#glow)"
+  />
+
+  <!-- Eye inner fill gradient -->
+  <ellipse cx="100" cy="100" rx="40" ry="22" fill="url(#irisGrad)"/>
+
+  <!-- Iris ring outer -->
+  <circle cx="100" cy="100" r="22" fill="#0a0a0a" stroke="#18ffbe" stroke-width="2.2" filter="url(#glow)"/>
+
+  <!-- Iris mid ring -->
+  <circle cx="100" cy="100" r="16" fill="none" stroke="#18ffbe" stroke-width="0.7" stroke-opacity="0.4"/>
+
+  <!-- Iris fill -->
+  <circle cx="100" cy="100" r="15" fill="#18ffbe" fill-opacity="0.08"/>
+
+  <!-- Pupil -->
+  <circle cx="100" cy="100" r="10" fill="url(#pupilGrad)"/>
+
+  <!-- V mark inside pupil -->
+  <path
+    d="M93,96 L100,104 L107,96"
+    fill="none"
+    stroke="#18ffbe"
+    stroke-width="2.2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+
+  <!-- Glint highlight -->
+  <circle cx="92" cy="93" r="2.5" fill="white" fill-opacity="0.55"/>
+  <circle cx="98" cy="90" r="1.2" fill="white" fill-opacity="0.3"/>
+
+  <!-- Horizontal scan line through eye -->
+  <line x1="38" y1="100" x2="162" y2="100" stroke="#18ffbe" stroke-width="0.6" stroke-opacity="0.2"/>
+
+  <!-- Corner hex accent dots -->
+  <circle cx="100" cy="12" r="2.5" fill="#18ffbe" fill-opacity="0.6"/>
+  <circle cx="100" cy="188" r="2.5" fill="#18ffbe" fill-opacity="0.6"/>
+  <circle cx="178" cy="56" r="2.5" fill="#18ffbe" fill-opacity="0.4"/>
+  <circle cx="22" cy="56" r="2.5" fill="#18ffbe" fill-opacity="0.4"/>
+  <circle cx="178" cy="144" r="2.5" fill="#18ffbe" fill-opacity="0.4"/>
+  <circle cx="22" cy="144" r="2.5" fill="#18ffbe" fill-opacity="0.4"/>
+</svg>
