@@ -4,7 +4,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { authFetch } from "@/lib/client-services/auth.service";
 import {
   Settings, Shield, Bell, RefreshCw, Save, Trash2, Plus, ChevronDown, ChevronUp,
-  AlertTriangle, Cpu, Database, Camera, X,
+  AlertTriangle, Cpu, Database, Camera, X, MessageSquare,
 } from "lucide-react";
 
 // ── types ─────────────────────────────────────────────────────────────────────
@@ -179,6 +179,125 @@ function RuntimeSection() {
           Reload
         </button>
       </div>
+    </Section>
+  );
+}
+
+// ── VLM Prompts ────────────────────────────────────────────────────────────────
+
+const VLM_PROMPT_KEYS = [
+  {
+    key: "vlm.analysis_prompt",
+    label: "Full Analysis Prompt",
+    hint: "Sent with every surveillance frame for full VLM analysis. Use {object_class}, {zone_name}, {dwell_sec}, {event_type} as placeholders.",
+  },
+  {
+    key: "vlm.triage_prompt",
+    label: "Triage Prompt",
+    hint: "Cheap first-pass prompt to decide if full analysis is needed. Model should reply YES or NO.",
+  },
+];
+
+function VlmPromptsSection() {
+  const [drafts, setDrafts] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState<string | null>(null);
+  const [msgs, setMsgs] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await apiFetch<{ key: string; value: unknown }[]>("/api/rag-config?group=prompts");
+      const map: Record<string, string> = {};
+      for (const row of data) {
+        map[row.key] = typeof row.value === "string" ? row.value : JSON.stringify(row.value);
+      }
+      setDrafts(map);
+    } catch (e) {
+      setErrors({ _load: e instanceof Error ? e.message : "Failed to load" });
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { void load(); }, [load]);
+
+  async function handleSave(key: string) {
+    setSaving(key);
+    setMsgs((m) => ({ ...m, [key]: "" }));
+    setErrors((e) => ({ ...e, [key]: "" }));
+    try {
+      await apiFetch(`/api/rag-config/${key}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ value: drafts[key] ?? "", group: "prompts" }),
+      });
+      setMsgs((m) => ({ ...m, [key]: "Saved. Takes effect within 60s (Redis TTL)." }));
+    } catch (e) {
+      setErrors((prev) => ({ ...prev, [key]: e instanceof Error ? e.message : "Save failed" }));
+    } finally {
+      setSaving(null);
+    }
+  }
+
+  async function handleReset(key: string) {
+    if (!confirm(`Reset "${key}" to default? This will delete the DB override.`)) return;
+    try {
+      await apiFetch(`/api/rag-config/${key}?group=prompts`, { method: "DELETE" });
+      setDrafts((d) => { const n = { ...d }; delete n[key]; return n; });
+      setMsgs((m) => ({ ...m, [key]: "Reset to default." }));
+    } catch (e) {
+      setErrors((prev) => ({ ...prev, [key]: e instanceof Error ? e.message : "Reset failed" }));
+    }
+  }
+
+  return (
+    <Section title="VLM Prompt Templates" icon={<MessageSquare className="size-4 text-emerald-500" />} defaultOpen={false}>
+      {errors._load && <p className="text-sm text-red-600 mb-3">{errors._load}</p>}
+      {loading ? (
+        <p className="text-sm text-slate-400">Loading…</p>
+      ) : (
+        <div className="space-y-6">
+          {VLM_PROMPT_KEYS.map(({ key, label, hint }) => (
+            <div key={key} className="space-y-2">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-slate-700">{label}</p>
+                  <p className="text-[11px] text-slate-400 mt-0.5">{hint}</p>
+                </div>
+                {drafts[key] && (
+                  <button
+                    type="button"
+                    onClick={() => handleReset(key)}
+                    className="text-[11px] text-slate-400 hover:text-red-500 transition-colors ml-4 shrink-0"
+                  >
+                    Reset to default
+                  </button>
+                )}
+              </div>
+              <textarea
+                rows={6}
+                value={drafts[key] ?? ""}
+                onChange={(e) => setDrafts((d) => ({ ...d, [key]: e.target.value }))}
+                placeholder="Leave empty to use built-in default"
+                className="w-full text-sm font-mono border border-slate-200 rounded-xl px-3 py-2.5 bg-white focus:outline-none focus:ring-1 focus:ring-emerald-500 resize-y"
+              />
+              {errors[key] && <p className="text-xs text-red-600">{errors[key]}</p>}
+              {msgs[key] && <p className="text-xs text-green-600">{msgs[key]}</p>}
+              <button
+                type="button"
+                onClick={() => handleSave(key)}
+                disabled={saving === key}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium disabled:opacity-50"
+              >
+                <Save className="size-3.5" />
+                {saving === key ? "Saving…" : "Save Prompt"}
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
     </Section>
   );
 }
@@ -782,6 +901,7 @@ export default function AdminPage() {
 
         <RuntimeSection />
         <CameraConfigSection />
+        <VlmPromptsSection />
         <RagSection />
         <NotifSection />
       </div>
