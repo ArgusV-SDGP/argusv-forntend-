@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import Hls from "hls.js";
 import {
   Bot,
@@ -269,7 +271,31 @@ function MessageBubble({ msg }: { msg: ChatMessage }) {
               ? "bg-red-50 border border-red-200 text-red-700 rounded-tl-sm"
               : "bg-white border border-slate-200 text-slate-800 shadow-sm rounded-tl-sm"
         }`}>
-          {msg.content}
+          {isUser ? (
+            msg.content
+          ) : (
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              components={{
+                p:      ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+                em:     ({ children }) => <em className="italic">{children}</em>,
+                ul:     ({ children }) => <ul className="list-disc pl-4 mb-2 space-y-0.5">{children}</ul>,
+                ol:     ({ children }) => <ol className="list-decimal pl-4 mb-2 space-y-0.5">{children}</ol>,
+                li:     ({ children }) => <li className="leading-snug">{children}</li>,
+                h1:     ({ children }) => <h1 className="text-base font-bold mb-1 mt-2">{children}</h1>,
+                h2:     ({ children }) => <h2 className="text-sm font-bold mb-1 mt-2">{children}</h2>,
+                h3:     ({ children }) => <h3 className="text-sm font-semibold mb-1 mt-1">{children}</h3>,
+                code:   ({ children }) => <code className="bg-slate-100 text-slate-700 px-1 py-0.5 rounded text-xs font-mono">{children}</code>,
+                pre:    ({ children }) => <pre className="bg-slate-100 rounded-lg p-3 overflow-x-auto text-xs font-mono mb-2">{children}</pre>,
+                a:      ({ href, children }) => <a href={href} className="text-violet-600 underline hover:text-violet-800" target="_blank" rel="noopener noreferrer">{children}</a>,
+                hr:     () => <hr className="my-2 border-slate-200" />,
+                blockquote: ({ children }) => <blockquote className="border-l-2 border-slate-300 pl-3 text-slate-500 italic my-2">{children}</blockquote>,
+              }}
+            >
+              {msg.content}
+            </ReactMarkdown>
+          )}
         </div>
 
         {/* Agent reasoning steps */}
