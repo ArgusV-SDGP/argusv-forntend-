@@ -19,32 +19,68 @@ export async function attachLiveStream(
 ) {
   const { onConnecting, onLive, onError } = handlers;
   const streamUrl = buildHlsStreamUrl(streamPath);
+  let settled = false;
+
+  function markLive() {
+    if (settled) return;
+    settled = true;
+    onLive?.();
+  }
+
+  function markError() {
+    if (settled) return;
+    settled = true;
+    onError?.();
+  }
+
+  function resetVideoElement() {
+    video.pause();
+    video.removeAttribute("src");
+    video.load();
+  }
+
+  const handleLoaded = () => {
+    markLive();
+  };
+
+  const handleVideoError = () => {
+    markError();
+  };
 
   onConnecting?.();
+  resetVideoElement();
+  video.addEventListener("loadeddata", handleLoaded);
+  video.addEventListener("canplay", handleLoaded);
+  video.addEventListener("playing", handleLoaded);
+  video.addEventListener("error", handleVideoError);
 
   if (video.canPlayType("application/vnd.apple.mpegurl")) {
     video.src = streamUrl;
 
     try {
       await video.play();
-      onLive?.();
+      markLive();
     } catch {
-      onError?.();
+      markError();
     }
 
     return () => {
-      video.pause();
-      video.removeAttribute("src");
-      video.load();
+      video.removeEventListener("loadeddata", handleLoaded);
+      video.removeEventListener("canplay", handleLoaded);
+      video.removeEventListener("playing", handleLoaded);
+      video.removeEventListener("error", handleVideoError);
+      resetVideoElement();
     };
   }
 
   if (!Hls.isSupported()) {
-    onError?.();
+    markError();
     return () => {
-      video.pause();
-      video.removeAttribute("src");
-      video.load();
+      video.removeEventListener("loadeddata", handleLoaded);
+      video.removeEventListener("canplay", handleLoaded);
+      video.removeEventListener("playing", handleLoaded);
+      video.removeEventListener("error", handleVideoError);
+      resetVideoElement();
     };
   }
 
@@ -66,23 +102,35 @@ export async function attachLiveStream(
     video
       .play()
       .then(() => {
-        onLive?.();
+        markLive();
       })
       .catch(() => {
-        onError?.();
+        markError();
       });
   });
 
   hls.on(Hls.Events.ERROR, (_event, data) => {
-    if (data.fatal) {
-      onError?.();
+    if (!data.fatal) return;
+
+    switch (data.type) {
+      case Hls.ErrorTypes.NETWORK_ERROR:
+        hls.startLoad();
+        break;
+      case Hls.ErrorTypes.MEDIA_ERROR:
+        hls.recoverMediaError();
+        break;
+      default:
+        markError();
+        break;
     }
   });
 
   return () => {
+    video.removeEventListener("loadeddata", handleLoaded);
+    video.removeEventListener("canplay", handleLoaded);
+    video.removeEventListener("playing", handleLoaded);
+    video.removeEventListener("error", handleVideoError);
     hls.destroy();
-    video.pause();
-    video.removeAttribute("src");
-    video.load();
+    resetVideoElement();
   };
 }
