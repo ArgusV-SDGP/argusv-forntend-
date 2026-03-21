@@ -116,10 +116,20 @@ export function MainCameraGridClient({ cameras }: MainCameraGridClientProps) {
   }, []);
 
   useEffect(() => {
-    if (!selectedCameraId && cameras.length > 0) {
-      setSelectedCameraId(cameras[0].cameraId);
+    const preferredCameraId = onlineCameras[0]?.cameraId ?? cameras[0]?.cameraId ?? "";
+    const selectedExists = cameras.some((camera) => camera.cameraId === selectedCameraId);
+
+    if (!preferredCameraId) {
+      if (selectedCameraId) {
+        setSelectedCameraId("");
+      }
+      return;
     }
-  }, [cameras, selectedCameraId]);
+
+    if (!selectedCameraId || !selectedExists) {
+      setSelectedCameraId(preferredCameraId);
+    }
+  }, [cameras, onlineCameras, selectedCameraId]);
 
   useEffect(() => {
     if (!selectedCameraId) return;
@@ -302,6 +312,7 @@ export function MainCameraGridClient({ cameras }: MainCameraGridClientProps) {
           {selectedCamera ? (
             selectedCamera.status.toLowerCase() === "online" ? (
               <LiveCameraPlayer
+                key={`${selectedCamera.cameraId}:${selectedCamera.streamPath}`}
                 cameraId={selectedCamera.cameraId}
                 name={selectedCamera.name}
                 streamPath={selectedCamera.streamPath}

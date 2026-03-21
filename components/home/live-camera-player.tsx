@@ -1,6 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import React, { useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 
 import { attachLiveStream } from "@/lib/client-services/live-stream.service";
 
@@ -90,10 +92,13 @@ export function LiveCameraPlayer({
   zones = [],
   frameSize = null,
 }: LiveCameraPlayerProps) {
+  const pathname = usePathname();
   const videoRef  = React.useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const rafRef    = useRef<number>(0);
+  const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [state, setState] = React.useState<"connecting" | "live" | "error">("connecting");
+  const [attachNonce, setAttachNonce] = React.useState(0);
 
   // Attach HLS stream
   React.useEffect(() => {
@@ -103,10 +108,34 @@ export function LiveCameraPlayer({
     let disposed = false;
     let cleanup: (() => void) | undefined;
 
+    if (reconnectTimerRef.current) {
+      clearTimeout(reconnectTimerRef.current);
+      reconnectTimerRef.current = null;
+    }
+
+    reconnectTimerRef.current = setTimeout(() => {
+      if (disposed) return;
+      setAttachNonce((value) => value + 1);
+    }, 4000);
+
     attachLiveStream(video, streamPath, {
-      onConnecting: () => { if (!disposed) setState("connecting"); },
-      onLive:       () => { if (!disposed) setState("live"); },
-      onError:      () => { if (!disposed) setState("error"); },
+      onConnecting: () => {
+        if (!disposed) setState("connecting");
+      },
+      onLive: () => {
+        if (reconnectTimerRef.current) {
+          clearTimeout(reconnectTimerRef.current);
+          reconnectTimerRef.current = null;
+        }
+        if (!disposed) setState("live");
+      },
+      onError: () => {
+        if (reconnectTimerRef.current) {
+          clearTimeout(reconnectTimerRef.current);
+          reconnectTimerRef.current = null;
+        }
+        if (!disposed) setState("error");
+      },
     }).then((dispose) => {
       if (disposed) { dispose(); return; }
       cleanup = dispose;
@@ -114,9 +143,13 @@ export function LiveCameraPlayer({
 
     return () => {
       disposed = true;
+      if (reconnectTimerRef.current) {
+        clearTimeout(reconnectTimerRef.current);
+        reconnectTimerRef.current = null;
+      }
       cleanup?.();
     };
-  }, [streamPath]);
+  }, [pathname, streamPath, attachNonce]);
 
   // Canvas bbox drawing loop
   useEffect(() => {
@@ -280,6 +313,7 @@ export function LiveCameraPlayer({
   return (
     <div className="relative h-full w-full">
       <video
+        key={`video-${streamPath}-${attachNonce}`}
         ref={videoRef}
         className="h-full w-full bg-black object-cover"
         muted
@@ -289,6 +323,7 @@ export function LiveCameraPlayer({
 
       {/* Bbox overlay */}
       <canvas
+        key={`canvas-${streamPath}-${attachNonce}`}
         ref={canvasRef}
         className="absolute inset-0 pointer-events-none"
         style={{ width: "100%", height: "100%" }}
@@ -296,7 +331,17 @@ export function LiveCameraPlayer({
 
       {state !== "live" ? (
         <div className="absolute inset-0 flex items-center justify-center bg-slate-950/80 text-white">
-          <div>
+          <div className="flex flex-col items-center">
+            {state === "connecting" ? (
+              <Image
+                src="/loading.gif"
+                alt="Loading stream"
+                width={56}
+                height={56}
+                unoptimized
+                className="mb-4 h-14 w-14 object-contain"
+              />
+            ) : null}
             <p className="text-sm font-semibold">{name || cameraId}</p>
             <p className="mt-1 text-xs uppercase tracking-[0.2em] text-slate-400">
               {state === "error" ? "Stream unavailable" : "Connecting to live stream"}
