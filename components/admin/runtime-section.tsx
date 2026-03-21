@@ -83,4 +83,63 @@ export function RuntimeSection() {
     setConfig((current) => ({ ...current, [key]: parsed }));
   }
 
-  
+  return (
+    <AdminSection title="Runtime Config" icon={<Cpu className="size-4 text-indigo-500" />}>
+      {loading ? (
+        <p className="text-sm text-slate-400">Loading…</p>
+      ) : (
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          {Object.entries(config).map(([key, value]) => (
+            <div key={key} className="space-y-1">
+              <label className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                {RUNTIME_LABELS[key] ?? key}
+              </label>
+              {typeof value === "boolean" ? (
+                <select
+                  value={String(value)}
+                  onChange={(event) => setValue(key, event.target.value)}
+                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                >
+                  <option value="true">Enabled</option>
+                  <option value="false">Disabled</option>
+                </select>
+              ) : (
+                <input
+                  type={typeof value === "number" ? "number" : "text"}
+                  value={String(value ?? "")}
+                  onChange={(event) => setValue(key, event.target.value)}
+                  step={typeof value === "number" && !Number.isInteger(value) ? "0.01" : "1"}
+                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                />
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
+      {message && <p className="mt-4 text-sm text-green-600">{message}</p>}
+
+      <div className="mt-6 flex gap-3">
+        <button
+          type="button"
+          onClick={handleSave}
+          disabled={saving || loading}
+          className="flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+        >
+          <Save className="size-4" />
+          {saving ? "Saving…" : "Save Changes"}
+        </button>
+        <button
+          type="button"
+          onClick={load}
+          disabled={loading}
+          className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-50"
+        >
+          <RefreshCw className={`size-4 ${loading ? "animate-spin" : ""}`} />
+          Reload
+        </button>
+      </div>
+    </AdminSection>
+  );
+}
