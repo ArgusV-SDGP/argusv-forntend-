@@ -6,3 +6,10 @@ export type RagEntry = {
   value: unknown;
 };
 
+export type NotifRule = {
+  id: string;
+  zone_id: string;
+  severity: string;
+  channels: string[];
+  config: Record<string, unknown>;
+};
