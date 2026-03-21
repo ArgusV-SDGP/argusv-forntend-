@@ -168,10 +168,39 @@ export default function RecordingsPage() {
               </div>
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center h-72 bg-white border-2 border-dashed border-slate-200 rounded-2xl text-slate-400">
-              <Film className="size-12 mb-3 opacity-30" />
-              <p className="text-sm font-medium">No recordings for this day</p>
-              <p className="text-xs mt-1 text-slate-400">Set RECORDINGS_ENABLED=true in .env</p>
+            <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+              {/* Skeleton video area */}
+              <div className="relative w-full aspect-video bg-slate-100 flex flex-col items-center justify-center gap-3">
+                <div className="absolute inset-0 bg-gradient-to-br from-slate-100 to-slate-200" />
+                {loadingDay ? (
+                  <>
+                    <div className="relative size-14 rounded-full bg-slate-200 animate-pulse flex items-center justify-center">
+                      <div className="size-8 rounded-full bg-slate-300 animate-pulse" />
+                    </div>
+                    <div className="relative space-y-2 text-center">
+                      <div className="h-3 w-36 bg-slate-200 animate-pulse rounded mx-auto" />
+                      <div className="h-2.5 w-24 bg-slate-200 animate-pulse rounded mx-auto" />
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="relative size-14 rounded-full bg-slate-200/80 flex items-center justify-center">
+                      <Film className="size-7 text-slate-400 opacity-60" />
+                    </div>
+                    <div className="relative text-center">
+                      <p className="text-sm font-medium text-slate-500">No recordings for this day</p>
+                      <p className="text-xs mt-1 text-slate-400">Set RECORDINGS_ENABLED=true in .env</p>
+                    </div>
+                  </>
+                )}
+              </div>
+              {/* Skeleton footer */}
+              <div className="px-4 py-2.5 flex items-center gap-4 border-t border-slate-100 bg-slate-50">
+                <div className="h-3 w-16 bg-slate-200 animate-pulse rounded" />
+                <div className="h-3 w-24 bg-slate-100 animate-pulse rounded" />
+                <div className="h-3 w-14 bg-slate-100 animate-pulse rounded" />
+                <div className="ml-auto h-3 w-40 bg-slate-100 animate-pulse rounded" />
+              </div>
             </div>
           )}
 
