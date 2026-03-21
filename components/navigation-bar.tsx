@@ -131,17 +131,6 @@ export function NavigationBar() {
               </NavigationMenuLink>
             </Link>
           </NavigationMenuItem>
-          {isAdmin && (
-            <NavigationMenuItem>
-              <Link href="/admin" legacyBehavior passHref>
-                <NavigationMenuLink className={getLinkStyle("/admin")}>
-                  <span className="flex items-center gap-1.5">
-                    <Settings className="size-3.5" />Admin
-                  </span>
-                </NavigationMenuLink>
-              </Link>
-            </NavigationMenuItem>
-          )}
         </NavigationMenuList>
       </NavigationMenu>
 
@@ -182,14 +171,24 @@ export function NavigationBar() {
               </div>
               <div className="p-1.5">
                 {isAdmin ? (
-                  <Link
-                    href="/user-profile"
-                    onClick={() => setIsProfileMenuOpen(false)}
-                    className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm font-medium text-slate-900 transition-colors hover:bg-slate-50"
-                  >
-                    <UserRound className="size-3.5 text-slate-700" />
-                    <span>Go to profile</span>
-                  </Link>
+                  <>
+                    <Link
+                      href="/user-profile"
+                      onClick={() => setIsProfileMenuOpen(false)}
+                      className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm font-medium text-slate-900 transition-colors hover:bg-slate-50"
+                    >
+                      <UserRound className="size-3.5 text-slate-700" />
+                      <span>Go to profile</span>
+                    </Link>
+                    <Link
+                      href="/admin"
+                      onClick={() => setIsProfileMenuOpen(false)}
+                      className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm font-medium text-slate-900 transition-colors hover:bg-slate-50"
+                    >
+                      <Settings className="size-3.5 text-slate-700" />
+                      <span>Setting</span>
+                    </Link>
+                  </>
                 ) : null}
                 <button
                   type="button"
@@ -254,15 +253,6 @@ export function NavigationBar() {
             >
               Zones
             </Link>
-            {isAdmin && (
-              <Link
-                href="/admin"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className={`p-2 rounded-md ${pathname?.startsWith("/admin") ? "bg-accent text-foreground font-medium" : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"}`}
-              >
-                Admin
-              </Link>
-            )}
           </nav>
         </div>
       )}
