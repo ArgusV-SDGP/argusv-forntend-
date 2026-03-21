@@ -69,10 +69,9 @@ export default function ChatInput({
             type="button"
             onClick={onSend}
             disabled={loading || !input.trim()}
-            className="size-11 rounded-xl disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center transition-colors shrink-0"
-            style={{ backgroundColor: "#18ffbe" }}
+            className="size-11 rounded-xl bg-black hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center transition-colors shrink-0"
           >
-            <Send className="size-4 text-[#1a1a1a]" />
+            <Send className="size-4 text-white" />
           </button>
         </div>
         <p className="text-[10px] text-slate-400 mt-2 text-center">
