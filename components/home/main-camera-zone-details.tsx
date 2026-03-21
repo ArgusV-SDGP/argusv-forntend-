@@ -50,10 +50,10 @@ export function MainCameraZoneDetails({
   onToggleSelectAll,
 }: MainCameraZoneDetailsProps) {
   return (
-    <section className="min-h-0 overflow-hidden rounded-[28px] border border-slate-200 bg-[linear-gradient(180deg,rgba(255,255,255,1)_0%,rgba(248,250,252,0.92)_100%)] shadow-[0_20px_60px_-40px_rgba(15,23,42,0.25)]">
+    <section className="min-h-0 overflow-hidden rounded-[20px] border border-slate-200 bg-[linear-gradient(180deg,rgba(255,255,255,1)_0%,rgba(248,250,252,0.92)_100%)] shadow-[0_20px_60px_-40px_rgba(15,23,42,0.25)] sm:rounded-[28px]">
       <div className="flex h-full min-h-0 flex-col p-4 sm:p-6">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-          <div>
+          <div className="min-w-0">
             <p className="text-lg font-semibold text-slate-900">Zone Details</p>
             <p className="mt-1 text-sm text-slate-500">
               Assigned zones and metadata now sit directly under the live stream for quicker
@@ -62,7 +62,7 @@ export function MainCameraZoneDetails({
           </div>
 
           <div className="flex flex-wrap gap-2 text-xs font-semibold">
-            <span className="rounded-full bg-slate-900 px-3 py-1.5 text-white">
+            <span className="max-w-full truncate rounded-full bg-slate-900 px-3 py-1.5 text-white">
               {selectedCameraName ?? "No camera selected"}
             </span>
             <span className="rounded-full bg-sky-100 px-3 py-1.5 text-sky-700">
@@ -75,7 +75,7 @@ export function MainCameraZoneDetails({
         </div>
 
         <div className="mt-5 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-          <div className="rounded-[24px] border border-slate-200 bg-slate-900 px-4 py-3 text-white shadow-sm">
+          <div className="rounded-[20px] border border-slate-200 bg-slate-900 px-4 py-3 text-white shadow-sm sm:rounded-[24px]">
             <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/60">
               Zone Visibility
             </p>
@@ -86,7 +86,7 @@ export function MainCameraZoneDetails({
             </p>
           </div>
 
-          <div className="rounded-full bg-slate-200 px-4 py-2 text-xs font-medium text-slate-700">
+          <div className="w-fit max-w-full rounded-full bg-slate-200 px-4 py-2 text-xs font-medium text-slate-700">
             {zoneCount > 0
               ? `${zoneCount} zone${zoneCount === 1 ? "" : "s"} available`
               : "No assigned zones"}
@@ -94,11 +94,11 @@ export function MainCameraZoneDetails({
         </div>
 
         {viewMode === "with_zones" ? (
-          <div className="mt-5 rounded-[24px] border border-slate-200 bg-white/80 p-4 shadow-sm">
+          <div className="mt-5 rounded-[20px] border border-slate-200 bg-white/80 p-4 shadow-sm sm:rounded-[24px]">
             {zoneCount > 0 ? (
               <>
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                  <div>
+                  <div className="min-w-0">
                     <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">
                       Zone Configuration
                     </p>
@@ -109,7 +109,7 @@ export function MainCameraZoneDetails({
                   <button
                     type="button"
                     onClick={onToggleSelectAll}
-                    className="inline-flex items-center gap-2 rounded-full bg-slate-950 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800"
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-slate-950 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800 sm:w-fit"
                   >
                     {allZonesSelected ? (
                       <CheckSquare className="size-4 text-emerald-300" />
@@ -120,7 +120,7 @@ export function MainCameraZoneDetails({
                   </button>
                 </div>
 
-                <div className="mt-4 max-h-40 overflow-y-auto pr-1">
+                <div className="ux-scrollbar mt-4 max-h-48 overflow-y-auto pr-1">
                   <div className="flex flex-wrap gap-2">
                     {zoneData?.zones.map((zone) => {
                       const checked = selectedZoneIds.includes(zone.zone_id);
@@ -129,7 +129,7 @@ export function MainCameraZoneDetails({
                           key={zone.zone_id}
                           type="button"
                           onClick={() => onToggleZone(zone.zone_id)}
-                          className={`inline-flex items-center gap-2 rounded-full border px-3 py-2 text-sm font-medium transition ${
+                          className={`inline-flex max-w-full items-center gap-2 rounded-full border px-3 py-2 text-left text-sm font-medium transition ${
                             checked
                               ? "border-sky-300 bg-sky-50 text-sky-900"
                               : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-slate-900"
@@ -140,7 +140,7 @@ export function MainCameraZoneDetails({
                           ) : (
                             <Square className="size-4 text-slate-400" />
                           )}
-                          <span>{zone.name || zone.zone_id}</span>
+                          <span className="truncate">{zone.name || zone.zone_id}</span>
                         </button>
                       );
                     })}
@@ -188,12 +188,12 @@ export function MainCameraZoneDetails({
           ) : null}
 
           {!zonesLoading && !zonesError && viewMode === "with_zones" && visibleZones.length > 0 ? (
-            <div className="max-h-[28rem] overflow-y-auto pr-1">
+            <div className="ux-scrollbar max-h-[28rem] overflow-y-auto pr-1">
               <div className="grid gap-3 md:grid-cols-2 2xl:grid-cols-3">
                 {visibleZones.map((zone) => (
                   <article
                     key={zone.zone_id}
-                    className="rounded-[24px] border border-slate-200 bg-white p-4 shadow-sm"
+                    className="rounded-[20px] border border-slate-200 bg-white p-4 shadow-sm sm:rounded-[24px]"
                   >
                     <div className="flex items-center justify-between gap-2">
                       <p className="truncate text-sm font-semibold text-slate-900">

@@ -225,9 +225,9 @@ export function MainCameraGridClient({ cameras }: MainCameraGridClientProps) {
   }
 
   return (
-    <div className="mx-auto  max-w-[1500px] flex-col gap-4">
-      <section className="shrink-0 overflow-hidden rounded-[28px] border mb-10 border-slate-200 bg-white shadow-[0_20px_60px_-40px_rgba(15,23,42,0.45)]">
-        <div className="relative isolate aspect-[16/9] min-h-[360px] overflow-hidden bg-slate-950 sm:min-h-[440px] lg:min-h-[420px] lg:max-h-[calc(100vh-22rem)] xl:min-h-[560px] xl:max-h-none">
+    <div className="mx-auto flex max-w-[1500px] flex-col gap-4">
+      <section className="mb-6 shrink-0 overflow-hidden rounded-[20px] border border-slate-200 bg-white shadow-[0_20px_60px_-40px_rgba(15,23,42,0.45)] sm:mb-8 sm:rounded-[28px]">
+        <div className="relative isolate aspect-[16/9] min-h-[220px] overflow-hidden bg-slate-950 sm:min-h-[320px] md:min-h-[380px] lg:min-h-[420px] lg:max-h-[calc(100vh-22rem)] xl:min-h-[560px] xl:max-h-none">
           {selectedCamera ? (
             selectedCamera.status.toLowerCase() === "online" ? (
               <LiveCameraPlayer
@@ -255,24 +255,24 @@ export function MainCameraGridClient({ cameras }: MainCameraGridClientProps) {
             </div>
           )}
 
-          <div className="pointer-events-none absolute inset-x-0 top-0 z-20 p-3 sm:p-5">
-            <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-              <div className="pointer-events-auto inline-flex w-fit self-start items-center gap-1.5 rounded-full border border-white/15 bg-slate-950/78 px-3 py-1.5 text-[11px] font-semibold leading-none text-white shadow-lg backdrop-blur-md sm:px-4 sm:py-2 sm:text-xs">
+          <div className="pointer-events-none absolute inset-x-0 top-0 z-20 p-2.5 sm:p-5">
+            <div className="flex items-start justify-between gap-2 sm:gap-3">
+              <div className="pointer-events-auto inline-flex min-w-0 max-w-[calc(100%-12.5rem)] self-start items-center gap-1.5 rounded-full border border-white/15 bg-slate-950/78 px-3 py-1.5 text-[11px] font-semibold leading-none text-white shadow-lg backdrop-blur-md sm:max-w-none sm:px-4 sm:py-2 sm:text-xs">
                 <Play className="size-2.5 fill-current text-emerald-400 sm:size-3" />
-                <span>{selectedCamera?.name ?? "Live camera"}</span>
+                <span className="truncate">{selectedCamera?.name ?? "Live camera"}</span>
                 <span className="h-1 w-1 rounded-full bg-white/40" />
                 <span className="inline-flex items-center gap-1 text-emerald-300">
                   <Wifi className="size-2.5 sm:size-3" />
                   {selectedCamera?.status ?? "unknown"}
                 </span>
               </div>
-              <div className="pointer-events-auto rounded-2xl border border-white/10 bg-slate-950/70 px-3 py-2 text-white shadow-xl backdrop-blur-md">
-                <div className="flex items-center gap-2">
+              <div className="pointer-events-auto ml-auto w-auto max-w-[12rem] rounded-2xl border border-white/10 bg-slate-950/70 px-2.5 py-2 text-white shadow-xl backdrop-blur-md sm:max-w-[28rem] sm:px-3">
+                <div className="flex flex-wrap items-center justify-end gap-2 sm:flex-row sm:items-center">
                   {/* Camera Selector */}
                   <select
                     value={selectedCameraId}
                     onChange={(event) => handleCameraChange(event.target.value)}
-                    className="rounded-xl border border-white/10 bg-white/10 px-3 py-1.5 text-xs font-medium text-white outline-none transition focus:border-sky-300 focus:bg-white/15"
+                    className="min-w-0 w-[8.25rem] rounded-xl border border-white/10 bg-white/10 px-3 py-1.5 text-xs font-medium text-white outline-none transition focus:border-sky-300 focus:bg-white/15 sm:w-auto sm:min-w-[12rem]"
                   >
                     {cameras.map((camera) => (
                       <option
@@ -286,15 +286,13 @@ export function MainCameraGridClient({ cameras }: MainCameraGridClientProps) {
                   </select>
 
                   {/* Divider */}
-                  <div className="h-5 w-px bg-white/15" />
+                  <div className="hidden h-5 w-px bg-white/15 sm:block" />
 
                   {/* Show Zones Toggle */}
-                  <label className="flex cursor-pointer items-center gap-2">
-                    <div>
-                      <p className="text-xs font-semibold text-white">
-                        Show Zones
-                      </p>
-                    </div>
+                  <label className="flex cursor-pointer items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 sm:justify-start sm:border-0 sm:bg-transparent sm:px-0 sm:py-0">
+                    <p className="text-xs font-semibold text-white whitespace-nowrap">
+                      Show Zones
+                    </p>
                     <input
                       type="checkbox"
                       checked={viewMode === "with_zones"}

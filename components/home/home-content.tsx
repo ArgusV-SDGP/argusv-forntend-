@@ -6,7 +6,7 @@ import { RightSidebar } from "./right-sidebar";
 
 export function HomeContent() {
   return (
-    <div className="flex flex-col lg:flex-row min-h-[calc(100vh-4rem)] lg:h-[calc(100vh-4rem)] bg-white text-slate-900 border-t border-gray-200 lg:overflow-hidden">
+    <div className="flex min-h-[calc(100vh-4rem)] flex-col border-t border-gray-200 bg-white text-slate-900 lg:h-[calc(100vh-4rem)] lg:flex-row lg:overflow-hidden">
       <Suspense fallback={<MainCameraGridSkeleton />}>
         <MainCameraGrid />
       </Suspense>
