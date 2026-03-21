@@ -6,7 +6,6 @@ import {
   Bot,
   Camera,
   ChevronRight,
-  ExternalLink,
   MapPin,
   Play,
   Send,
@@ -173,14 +172,11 @@ function SourceCard({ clip }: { clip: SourceClip }) {
           <p className="text-xs text-slate-600 leading-snug line-clamp-2">{clip.vlm_summary}</p>
         )}
 
-        {clip.incident_id && (
-          <a
-            href="/incidents"
-            className="inline-flex items-center gap-1 mt-1.5 text-[10px] font-medium text-blue-600 hover:text-blue-700"
-          >
-            <ExternalLink className="size-3" />View incident
-          </a>
-        )}
+        {clip.incident_id ? (
+          <p className="mt-1.5 text-[10px] font-medium text-slate-500">
+            Incident ID: {clip.incident_id}
+          </p>
+        ) : null}
       </div>
     </div>
   );

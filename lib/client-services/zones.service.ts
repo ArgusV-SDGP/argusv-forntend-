@@ -14,8 +14,9 @@ async function getResponseError(response: Response, fallback: string): Promise<s
   return data?.detail ?? data?.message ?? fallback;
 }
 
-export async function getZones() {
-  const response = await authFetch("/api/zones");
+export async function getZones(cameraId?: string) {
+  const url = cameraId ? `/api/zones?camera_id=${encodeURIComponent(cameraId)}` : "/api/zones";
+  const response = await authFetch(url);
   if (!response.ok) throw new Error(await getResponseError(response, "Failed to load zones"));
   const data = (await response.json()) as ZoneApiResponse[];
   return mapZonesToListItems(Array.isArray(data) ? data : []);
@@ -38,7 +39,10 @@ export async function deleteZone(zoneId: string) {
   }
 }
 
-export async function patchZone(zoneId: string, payload: Partial<CreateZonePayload>) {
+export async function patchZone(
+  zoneId: string,
+  payload: Partial<Omit<CreateZonePayload, "camera_id">> & { camera_id: string },
+) {
   const response = await authFetch(`/api/zones/${zoneId}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },

@@ -109,13 +109,6 @@ export function NavigationBar() {
             </Link>
           </NavigationMenuItem>
           <NavigationMenuItem>
-            <Link href="/incidents" legacyBehavior passHref>
-              <NavigationMenuLink className={getLinkStyle("/incidents")}>
-                Incidents
-              </NavigationMenuLink>
-            </Link>
-          </NavigationMenuItem>
-          <NavigationMenuItem>
             <Link href="/detections" legacyBehavior passHref>
               <NavigationMenuLink className={getLinkStyle("/detections")}>
                 Detections
@@ -239,13 +232,6 @@ export function NavigationBar() {
               className={`p-2 rounded-md ${pathname?.startsWith("/recordings") ? "bg-accent text-foreground font-medium" : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"}`}
             >
               Recordings
-            </Link>
-            <Link
-              href="/incidents"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className={`p-2 rounded-md ${pathname?.startsWith("/incidents") ? "bg-accent text-foreground font-medium" : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"}`}
-            >
-              Incidents
             </Link>
             <Link
               href="/detections"

@@ -11,6 +11,7 @@ export type ZoneRule = {
 
 export type ZoneApiResponse = {
   zone_id?: string;
+  camera_id?: string;
   name?: string;
   zone_type?: string;
   dwell_threshold_sec?: number;
@@ -22,6 +23,7 @@ export type ZoneApiResponse = {
 
 export type ZoneListItem = {
   id: string;
+  camera_id: string;
   name: string;
   type: string;
   dwell: number;
@@ -33,6 +35,7 @@ export type ZoneListItem = {
 };
 
 export type CreateZonePayload = {
+  camera_id: string;
   name: string;
   zone_type: string;
   dwell_threshold_sec: number;
@@ -66,6 +69,7 @@ export function mapZoneToListItem(
 
   return {
     id: zone.zone_id ?? `zone-${index}`,
+    camera_id: zone.camera_id ?? "unknown",
     name: zone.name ?? "Unnamed Zone",
     type: zone.zone_type ?? "security",
     dwell: Number(zone.dwell_threshold_sec ?? 0),

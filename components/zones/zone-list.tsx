@@ -115,12 +115,6 @@ export function ZoneList({
                       <Shield className="size-3 text-indigo-400" />
                       {zone.rules.length} rule{zone.rules.length !== 1 ? "s" : ""}
                     </span>
-                    {zone.allowedClasses && zone.allowedClasses.length > 0 && (
-                      <span className="flex items-center gap-1 text-teal-600">
-                        <Tag className="size-3" />
-                        {zone.allowedClasses.join(", ")}
-                      </span>
-                    )}
                   </div>
                 </div>
 
