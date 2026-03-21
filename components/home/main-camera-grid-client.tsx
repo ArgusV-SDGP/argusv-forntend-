@@ -1,12 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import {
-  Play,
-  Send,
-  Share2,
-  Wifi,
-} from "lucide-react";
+import { Play, Wifi } from "lucide-react";
 
 import {
   getAssignedCameraZones,
@@ -21,8 +16,11 @@ type MainCameraGridClientProps = {
   cameras: CameraGridItem[];
 };
 
-const WS_URL = (process.env.NEXT_PUBLIC_BASE_URL ?? "http://127.0.0.1:8000")
-  .replace(/^http/, "ws") + "/ws/alerts";
+const WS_URL =
+  (process.env.NEXT_PUBLIC_BASE_URL ?? "http://127.0.0.1:8000").replace(
+    /^http/,
+    "ws",
+  ) + "/ws/alerts";
 
 const BBOX_TTL_MS = 3000;
 
@@ -31,9 +29,11 @@ export function MainCameraGridClient({ cameras }: MainCameraGridClientProps) {
     () => cameras.filter((camera) => camera.status.toLowerCase() === "online"),
     [cameras],
   );
-  const initialCameraId = onlineCameras[0]?.cameraId ?? cameras[0]?.cameraId ?? "";
+  const initialCameraId =
+    onlineCameras[0]?.cameraId ?? cameras[0]?.cameraId ?? "";
 
-  const [selectedCameraId, setSelectedCameraId] = useState<string>(initialCameraId);
+  const [selectedCameraId, setSelectedCameraId] =
+    useState<string>(initialCameraId);
   const [viewMode, setViewMode] = useState<ZoneViewMode>("without_zones");
   const [selectedZoneIds, setSelectedZoneIds] = useState<string[]>([]);
   const [zoneData, setZoneData] = useState<CameraZonesResponse | null>(null);
@@ -58,7 +58,9 @@ export function MainCameraGridClient({ cameras }: MainCameraGridClientProps) {
           const msg = JSON.parse(evt.data as string);
           if (msg.type !== "fast_alert") return;
 
-          const bbox = msg.bbox as { x1: number; y1: number; x2: number; y2: number } | undefined;
+          const bbox = msg.bbox as
+            | { x1: number; y1: number; x2: number; y2: number }
+            | undefined;
           if (!bbox || !msg.camera_id) return;
 
           const det: BboxDetection = {
@@ -116,8 +118,11 @@ export function MainCameraGridClient({ cameras }: MainCameraGridClientProps) {
   }, []);
 
   useEffect(() => {
-    const preferredCameraId = onlineCameras[0]?.cameraId ?? cameras[0]?.cameraId ?? "";
-    const selectedExists = cameras.some((camera) => camera.cameraId === selectedCameraId);
+    const preferredCameraId =
+      onlineCameras[0]?.cameraId ?? cameras[0]?.cameraId ?? "";
+    const selectedExists = cameras.some(
+      (camera) => camera.cameraId === selectedCameraId,
+    );
 
     if (!preferredCameraId) {
       if (selectedCameraId) {
@@ -149,11 +154,14 @@ export function MainCameraGridClient({ cameras }: MainCameraGridClientProps) {
 
         const ids = response.available_zone_ids?.length
           ? response.available_zone_ids
-          : response.zones?.map((zone) => zone.zone_id) ?? [];
+          : (response.zones?.map((zone) => zone.zone_id) ?? []);
         setSelectedZoneIds(ids);
       } catch (error) {
         if (cancelled) return;
-        const message = error instanceof Error ? error.message : "Failed to load camera zones";
+        const message =
+          error instanceof Error
+            ? error.message
+            : "Failed to load camera zones";
         setZonesError(message);
         setZoneData(null);
         setSelectedZoneIds([]);
@@ -170,7 +178,8 @@ export function MainCameraGridClient({ cameras }: MainCameraGridClientProps) {
   }, [selectedCameraId]);
 
   const selectedCamera = React.useMemo(
-    () => cameras.find((camera) => camera.cameraId === selectedCameraId) ?? null,
+    () =>
+      cameras.find((camera) => camera.cameraId === selectedCameraId) ?? null,
     [cameras, selectedCameraId],
   );
 
@@ -181,7 +190,8 @@ export function MainCameraGridClient({ cameras }: MainCameraGridClientProps) {
   }, [zoneData]);
 
   const allZonesSelected =
-    availableZoneIds.length > 0 && selectedZoneIds.length === availableZoneIds.length;
+    availableZoneIds.length > 0 &&
+    selectedZoneIds.length === availableZoneIds.length;
   const zoneCount = zoneData?.zone_count ?? 0;
 
   const visibleZones = React.useMemo(() => {
@@ -200,7 +210,9 @@ export function MainCameraGridClient({ cameras }: MainCameraGridClientProps) {
 
   function toggleZone(zoneId: string) {
     setSelectedZoneIds((prev) =>
-      prev.includes(zoneId) ? prev.filter((id) => id !== zoneId) : [...prev, zoneId],
+      prev.includes(zoneId)
+        ? prev.filter((id) => id !== zoneId)
+        : [...prev, zoneId],
     );
   }
 
@@ -244,81 +256,60 @@ export function MainCameraGridClient({ cameras }: MainCameraGridClientProps) {
           )}
 
           <div className="pointer-events-none absolute inset-x-0 top-0 z-20 p-3 sm:p-5">
-            <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
-              <div className="pointer-events-auto inline-flex w-fit items-center gap-2 rounded-full border border-white/15 bg-slate-950/72 px-3 py-2 text-xs font-semibold text-white shadow-lg backdrop-blur-md">
-                <Play className="size-3 fill-current text-emerald-400" />
+            <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+              <div className="pointer-events-auto inline-flex w-fit self-start items-center gap-1.5 rounded-full border border-white/15 bg-slate-950/78 px-3 py-1.5 text-[11px] font-semibold leading-none text-white shadow-lg backdrop-blur-md sm:px-4 sm:py-2 sm:text-xs">
+                <Play className="size-2.5 fill-current text-emerald-400 sm:size-3" />
                 <span>{selectedCamera?.name ?? "Live camera"}</span>
                 <span className="h-1 w-1 rounded-full bg-white/40" />
                 <span className="inline-flex items-center gap-1 text-emerald-300">
-                  <Wifi className="size-3" />
+                  <Wifi className="size-2.5 sm:size-3" />
                   {selectedCamera?.status ?? "unknown"}
                 </span>
               </div>
+              <div className="pointer-events-auto rounded-2xl border border-white/10 bg-slate-950/70 px-3 py-2 text-white shadow-xl backdrop-blur-md">
+                <div className="flex items-center gap-2">
+                  {/* Camera Selector */}
+                  <select
+                    value={selectedCameraId}
+                    onChange={(event) => handleCameraChange(event.target.value)}
+                    className="rounded-xl border border-white/10 bg-white/10 px-3 py-1.5 text-xs font-medium text-white outline-none transition focus:border-sky-300 focus:bg-white/15"
+                  >
+                    {cameras.map((camera) => (
+                      <option
+                        key={camera.cameraId}
+                        value={camera.cameraId}
+                        className="text-slate-900"
+                      >
+                        {camera.name} ({camera.status})
+                      </option>
+                    ))}
+                  </select>
 
-              <div className="pointer-events-auto w-full max-w-[720px] rounded-[26px] border border-white/15 bg-slate-950/72 p-3 text-white shadow-2xl backdrop-blur-md">
-                <div className="grid gap-3 lg:grid-cols-[minmax(0,1.4fr)_auto_auto]">
-                  <label className="min-w-0 text-[11px] font-semibold uppercase tracking-[0.24em] text-white/70">
-                    Camera
-                    <select
-                      value={selectedCameraId}
-                      onChange={(event) => handleCameraChange(event.target.value)}
-                      className="mt-2 w-full rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm font-medium text-white outline-none transition focus:border-sky-300 focus:bg-white/15"
-                    >
-                      {cameras.map((camera) => (
-                        <option
-                          key={camera.cameraId}
-                          value={camera.cameraId}
-                          className="text-slate-900"
-                        >
-                          {camera.name} ({camera.status})
-                        </option>
-                      ))}
-                    </select>
+                  {/* Divider */}
+                  <div className="h-5 w-px bg-white/15" />
+
+                  {/* Show Zones Toggle */}
+                  <label className="flex cursor-pointer items-center gap-2">
+                    <div>
+                      <p className="text-xs font-semibold text-white">
+                        Show Zones
+                      </p>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={viewMode === "with_zones"}
+                      onChange={(event) =>
+                        setViewMode(
+                          event.target.checked ? "with_zones" : "without_zones",
+                        )
+                      }
+                      className="size-4 rounded border-white/30 bg-white/10 text-sky-400 focus:ring-2 focus:ring-sky-300"
+                    />
                   </label>
-
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/70">
-                    Overlay Mode
-                    <label className="mt-2 flex min-h-[54px] items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/10 px-4 py-3">
-                      <div>
-                        <p className="text-sm font-semibold tracking-normal text-white">
-                          Show Zones
-                        </p>
-                        <p className="mt-0.5 text-[11px] font-medium normal-case tracking-normal text-white/65">
-                          Toggle overlay polygons and zone metadata.
-                        </p>
-                      </div>
-                      <input
-                        type="checkbox"
-                        checked={viewMode === "with_zones"}
-                        onChange={(event) =>
-                          setViewMode(event.target.checked ? "with_zones" : "without_zones")
-                        }
-                        className="size-5 rounded border-white/30 bg-white/10 text-sky-400 focus:ring-2 focus:ring-sky-300"
-                      />
-                    </label>
-                  </div>
-
-                  <div className="flex flex-col justify-end gap-2 sm:flex-row lg:flex-col">
-                    <button
-                      type="button"
-                      className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/15"
-                    >
-                      <Send className="size-4" />
-                      Send Message
-                    </button>
-                    <button
-                      type="button"
-                      className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/15"
-                    >
-                      <Share2 className="size-4" />
-                      Share View
-                    </button>
-                  </div>
                 </div>
               </div>
             </div>
           </div>
-
         </div>
       </section>
       <MainCameraZoneDetails
