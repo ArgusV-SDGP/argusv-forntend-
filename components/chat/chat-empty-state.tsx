@@ -12,7 +12,7 @@ type Props = {
 
 export default function ChatEmptyState({ selectedCam, cameras, onSend }: Props) {
   return (
-    <div className="flex flex-col items-center justify-center h-full text-center pb-20 pt-10">
+    <div className="flex flex-col items-center justify-center h-full text-center py-20">
       <div className="size-16 rounded-2xl bg-slate-900 flex items-center justify-center mb-4 shadow-lg">
         <Bot className="size-8 text-white" />
       </div>
