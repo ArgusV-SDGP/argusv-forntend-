@@ -129,8 +129,54 @@ export default function RecordingsPage() {
         </div>
       )}
 
-      {/* ── Day nav + 24h bar ── */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm mb-5">
+  
+
+      {/* ── Player + Events ── */}
+      <div className="flex flex-col lg:flex-row gap-5">
+
+        {/* Player */}
+        <div className="flex-1 min-w-0">
+          {playlistUrl ? (
+            <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+              <DayPlayer
+                key={playlistUrl}
+                playlistUrl={playlistUrl}
+                seekTo={seekTo}
+                bboxMarker={bboxMarker}
+                onBboxExpire={() => setBboxMarker(null)}
+              />
+              {/* Player footer */}
+              <div className="px-4 py-2.5 flex items-center gap-4 text-xs text-slate-500 border-t border-slate-100 bg-slate-50">
+                <span className="font-semibold text-slate-700">{formatDateLabel(selectedDay)}</span>
+                <span>{segments.length} segment{segments.length !== 1 ? "s" : ""} stitched</span>
+                <span className="flex items-center gap-1">
+                  <div className="size-1.5 rounded-full bg-blue-500" />{formatDuration(totalDuration)}
+                </span>
+                {bboxMarker ? (
+                  <span
+                    className="ml-auto flex items-center gap-1.5 font-semibold text-xs animate-pulse"
+                    style={{ color: bboxMarker.is_threat ? "#ef4444" : bboxMarker.threat_level === "MEDIUM" ? "#f59e0b" : "#94a3b8" }}
+                  >
+                    <div className="size-1.5 rounded-full" style={{ background: bboxMarker.is_threat ? "#ef4444" : bboxMarker.threat_level === "MEDIUM" ? "#f59e0b" : "#94a3b8" }} />
+                    {bboxMarker.object_class} · {bboxMarker.threat_level}
+                  </span>
+                ) : (
+                  <span className="ml-auto text-slate-400 text-[10px]">
+                    Click timeline or event to jump + show bbox
+                  </span>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center h-72 bg-white border-2 border-dashed border-slate-200 rounded-2xl text-slate-400">
+              <Film className="size-12 mb-3 opacity-30" />
+              <p className="text-sm font-medium">No recordings for this day</p>
+              <p className="text-xs mt-1 text-slate-400">Set RECORDINGS_ENABLED=true in .env</p>
+            </div>
+          )}
+
+                      {/* ── Day nav + 24h bar ── */}
+      <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm mt-5">
 
         {/* Date row */}
         <div className="flex items-center gap-3 mb-5">
@@ -194,51 +240,9 @@ export default function RecordingsPage() {
             onSeek={(ts) => { setSeekTo(computeSeekOffset(ts, segments)); setBboxMarker(null); }} />
         )}
       </div>
-
-      {/* ── Player + Events ── */}
-      <div className="flex flex-col lg:flex-row gap-5">
-
-        {/* Player */}
-        <div className="flex-1 min-w-0">
-          {playlistUrl ? (
-            <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
-              <DayPlayer
-                key={playlistUrl}
-                playlistUrl={playlistUrl}
-                seekTo={seekTo}
-                bboxMarker={bboxMarker}
-                onBboxExpire={() => setBboxMarker(null)}
-              />
-              {/* Player footer */}
-              <div className="px-4 py-2.5 flex items-center gap-4 text-xs text-slate-500 border-t border-slate-100 bg-slate-50">
-                <span className="font-semibold text-slate-700">{formatDateLabel(selectedDay)}</span>
-                <span>{segments.length} segment{segments.length !== 1 ? "s" : ""} stitched</span>
-                <span className="flex items-center gap-1">
-                  <div className="size-1.5 rounded-full bg-blue-500" />{formatDuration(totalDuration)}
-                </span>
-                {bboxMarker ? (
-                  <span
-                    className="ml-auto flex items-center gap-1.5 font-semibold text-xs animate-pulse"
-                    style={{ color: bboxMarker.is_threat ? "#ef4444" : bboxMarker.threat_level === "MEDIUM" ? "#f59e0b" : "#94a3b8" }}
-                  >
-                    <div className="size-1.5 rounded-full" style={{ background: bboxMarker.is_threat ? "#ef4444" : bboxMarker.threat_level === "MEDIUM" ? "#f59e0b" : "#94a3b8" }} />
-                    {bboxMarker.object_class} · {bboxMarker.threat_level}
-                  </span>
-                ) : (
-                  <span className="ml-auto text-slate-400 text-[10px]">
-                    Click timeline or event to jump + show bbox
-                  </span>
-                )}
-              </div>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center h-72 bg-white border-2 border-dashed border-slate-200 rounded-2xl text-slate-400">
-              <Film className="size-12 mb-3 opacity-30" />
-              <p className="text-sm font-medium">No recordings for this day</p>
-              <p className="text-xs mt-1 text-slate-400">Set RECORDINGS_ENABLED=true in .env</p>
-            </div>
-          )}
         </div>
+
+
 
         {/* Events panel */}
         <div className="lg:w-72 shrink-0 flex flex-col gap-3">
