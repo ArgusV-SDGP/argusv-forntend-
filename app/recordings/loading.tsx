@@ -15,52 +15,57 @@ export default function RecordingsLoading() {
         </div>
       </div>
 
-      {/* Day nav + timeline bar card */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm mb-5 space-y-5">
-        {/* Date row */}
-        <div className="flex items-center gap-3">
-          <div className="size-7 bg-slate-100 animate-pulse rounded-lg" />
-          <div className="flex items-center gap-2">
-            <div className="size-4 bg-blue-200 animate-pulse rounded" />
-            <div className="h-4 w-16 bg-slate-200 animate-pulse rounded" />
-            <div className="h-3 w-32 bg-slate-100 animate-pulse rounded" />
-          </div>
-          <div className="size-7 bg-slate-100 animate-pulse rounded-lg" />
-          <div className="size-7 bg-slate-100 animate-pulse rounded-lg" />
-          <div className="ml-auto flex items-center gap-5">
-            <div className="h-3 w-24 bg-slate-100 animate-pulse rounded" />
-            <div className="h-3 w-20 bg-slate-100 animate-pulse rounded" />
-          </div>
-        </div>
-
-        {/* Timeline bar */}
-        <div className="space-y-1.5">
-          <div className="h-9 bg-slate-100 animate-pulse rounded-lg" />
-          <div className="h-2 bg-slate-100 animate-pulse rounded" />
-          <div className="h-4" />
-          {/* Legend */}
-          <div className="flex items-center gap-4">
-            <div className="h-3 w-20 bg-slate-100 animate-pulse rounded" />
-            <div className="h-3 w-20 bg-slate-100 animate-pulse rounded" />
-            <div className="h-3 w-16 bg-slate-100 animate-pulse rounded" />
-          </div>
-        </div>
-      </div>
-
       {/* Player + Events */}
       <div className="flex flex-col lg:flex-row gap-5">
 
-        {/* Player */}
-        <div className="flex-1 min-w-0 bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
-          {/* Video area */}
-          <div className="w-full aspect-video bg-slate-100 animate-pulse" />
-          {/* Player footer */}
-          <div className="px-4 py-2.5 flex items-center gap-4 border-t border-slate-100 bg-slate-50">
-            <div className="h-3 w-16 bg-slate-200 animate-pulse rounded" />
-            <div className="h-3 w-24 bg-slate-100 animate-pulse rounded" />
-            <div className="h-3 w-14 bg-slate-100 animate-pulse rounded" />
-            <div className="ml-auto h-3 w-40 bg-slate-100 animate-pulse rounded" />
+        {/* Left column: Player + Day nav */}
+        <div className="flex-1 min-w-0">
+
+          {/* Player */}
+          <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+            {/* Video area */}
+            <div className="w-full aspect-video bg-slate-100 animate-pulse" />
+            {/* Player footer */}
+            <div className="px-4 py-2.5 flex items-center gap-4 border-t border-slate-100 bg-slate-50">
+              <div className="h-3 w-16 bg-slate-200 animate-pulse rounded" />
+              <div className="h-3 w-24 bg-slate-100 animate-pulse rounded" />
+              <div className="h-3 w-14 bg-slate-100 animate-pulse rounded" />
+              <div className="ml-auto h-3 w-40 bg-slate-100 animate-pulse rounded" />
+            </div>
           </div>
+
+          {/* Day nav + timeline bar card */}
+          <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm mt-5 space-y-5">
+            {/* Date row */}
+            <div className="flex items-center gap-3">
+              <div className="size-7 bg-slate-100 animate-pulse rounded-lg" />
+              <div className="flex items-center gap-2">
+                <div className="size-4 bg-blue-200 animate-pulse rounded" />
+                <div className="h-4 w-16 bg-slate-200 animate-pulse rounded" />
+                <div className="h-3 w-32 bg-slate-100 animate-pulse rounded" />
+              </div>
+              <div className="size-7 bg-slate-100 animate-pulse rounded-lg" />
+              <div className="size-7 bg-slate-100 animate-pulse rounded-lg" />
+              <div className="ml-auto flex items-center gap-5">
+                <div className="h-3 w-24 bg-slate-100 animate-pulse rounded" />
+                <div className="h-3 w-20 bg-slate-100 animate-pulse rounded" />
+              </div>
+            </div>
+
+            {/* Timeline bar */}
+            <div className="space-y-1.5">
+              <div className="h-9 bg-slate-100 animate-pulse rounded-lg" />
+              <div className="h-2 bg-slate-100 animate-pulse rounded" />
+              <div className="h-4" />
+              {/* Legend */}
+              <div className="flex items-center gap-4">
+                <div className="h-3 w-20 bg-slate-100 animate-pulse rounded" />
+                <div className="h-3 w-20 bg-slate-100 animate-pulse rounded" />
+                <div className="h-3 w-16 bg-slate-100 animate-pulse rounded" />
+              </div>
+            </div>
+          </div>
+
         </div>
 
         {/* Events panel */}
@@ -78,7 +83,7 @@ export default function RecordingsLoading() {
           </div>
 
           {/* Event list */}
-          <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+          <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden flex flex-col">
             {/* Header */}
             <div className="px-4 py-3 border-b border-slate-100 bg-slate-50 flex items-center gap-2">
               <div className="size-4 bg-amber-200 animate-pulse rounded" />
