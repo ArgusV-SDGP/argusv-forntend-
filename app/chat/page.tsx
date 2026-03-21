@@ -5,12 +5,15 @@ import Hls from "hls.js";
 import {
   Bot,
   Camera,
+  ChevronDown,
   ChevronRight,
+  ChevronUp,
   MapPin,
   Play,
   Send,
   Sparkles,
   User,
+  Wrench,
   X,
 } from "lucide-react";
 import { authFetch, API_BASE_URL } from "@/lib/client-services/auth.service";
@@ -18,17 +21,26 @@ import { authFetch, API_BASE_URL } from "@/lib/client-services/auth.service";
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 type SourceClip = {
-  event_id: string;
+  source_type: "detection" | "segment" | "incident";
+  id: string;
   camera_id: string;
-  zone_name: string | null;
   timestamp: string;
-  vlm_summary: string | null;
+  end_time: string | null;
+  zone_name: string | null;
+  description: string;
   threat_level: string | null;
   is_threat: boolean | null;
   thumbnail_url: string | null;
+  video_url: string | null;
   playlist_url: string | null;
   incident_id: string | null;
-  distance: number;
+  score: number;
+};
+
+type AgentStep = {
+  tool: string;
+  args: Record<string, unknown>;
+  result_summary: string;
 };
 
 type ChatMessage = {
@@ -36,6 +48,7 @@ type ChatMessage = {
   role: "user" | "assistant";
   content: string;
   sources?: SourceClip[];
+  steps?: AgentStep[];
   error?: boolean;
 };
 
@@ -49,6 +62,14 @@ const THREAT_BADGE: Record<string, string> = {
   LOW:    "bg-slate-100 text-slate-600 border-slate-200",
 };
 
+const TOOL_LABELS: Record<string, string> = {
+  search_detections: "Searched detections",
+  search_segments:   "Searched video clips",
+  get_incidents:     "Retrieved incidents",
+  get_zone_activity: "Checked zone activity",
+  get_clip:          "Retrieved video clip",
+};
+
 function formatTs(iso: string) {
   return new Date(iso).toLocaleString(undefined, {
     month: "short", day: "numeric",
@@ -56,8 +77,7 @@ function formatTs(iso: string) {
   });
 }
 
-function relevanceLabel(distance: number) {
-  const score = 1 - distance;
+function scoreLabel(score: number) {
   if (score >= 0.85) return { label: "Strong match", color: "text-emerald-600" };
   if (score >= 0.65) return { label: "Good match",   color: "text-blue-600" };
   return                     { label: "Weak match",   color: "text-slate-400" };
@@ -101,21 +121,20 @@ function MiniPlayer({ src }: { src: string }) {
 
 function SourceCard({ clip }: { clip: SourceClip }) {
   const [showVideo, setShowVideo] = useState(false);
-  const rel = relevanceLabel(clip.distance);
+  const rel = scoreLabel(clip.score);
   const tBadge = THREAT_BADGE[clip.threat_level ?? ""] ?? THREAT_BADGE.LOW;
   const playlistSrc = clip.playlist_url ? `${API_BASE_URL}${clip.playlist_url}` : null;
 
   return (
     <div className="bg-white border border-slate-200 rounded-xl shadow-sm hover:border-slate-300 transition-colors overflow-hidden">
-
-      {/* Video / Thumbnail area */}
+      {/* Video / Thumbnail */}
       <div className="relative w-full h-32 bg-slate-900">
         {showVideo && playlistSrc ? (
           <MiniPlayer src={playlistSrc} />
         ) : clip.thumbnail_url ? (
           <img
             src={`${API_BASE_URL}${clip.thumbnail_url}`}
-            alt="Detection snapshot"
+            alt="Snapshot"
             className="w-full h-full object-cover"
             onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
           />
@@ -125,7 +144,6 @@ function SourceCard({ clip }: { clip: SourceClip }) {
           </div>
         )}
 
-        {/* Play button overlay — only if recording available */}
         {playlistSrc && !showVideo && (
           <button
             type="button"
@@ -168,16 +186,64 @@ function SourceCard({ clip }: { clip: SourceClip }) {
 
         <p className="text-[10px] text-slate-400 mb-1">{formatTs(clip.timestamp)}</p>
 
-        {clip.vlm_summary && (
-          <p className="text-xs text-slate-600 leading-snug line-clamp-2">{clip.vlm_summary}</p>
+        {clip.description && (
+          <p className="text-xs text-slate-600 leading-snug line-clamp-2">{clip.description}</p>
         )}
 
-        {clip.incident_id ? (
+        {clip.incident_id && (
           <p className="mt-1.5 text-[10px] font-medium text-slate-500">
-            Incident ID: {clip.incident_id}
+            Incident: {clip.incident_id.slice(0, 8)}…
           </p>
-        ) : null}
+        )}
       </div>
+    </div>
+  );
+}
+
+// ── Agent Steps Panel ─────────────────────────────────────────────────────────
+
+function AgentStepsPanel({ steps }: { steps: AgentStep[] }) {
+  const [open, setOpen] = useState(false);
+  if (!steps.length) return null;
+
+  return (
+    <div className="w-full border border-slate-100 rounded-xl overflow-hidden bg-slate-50">
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center gap-2 px-3 py-2 text-left hover:bg-slate-100 transition-colors"
+      >
+        <Wrench className="size-3 text-violet-400 shrink-0" />
+        <span className="text-[11px] font-semibold text-slate-500 flex-1">
+          {steps.length} tool call{steps.length !== 1 ? "s" : ""} · agent reasoning
+        </span>
+        {open ? <ChevronUp className="size-3 text-slate-400" /> : <ChevronDown className="size-3 text-slate-400" />}
+      </button>
+
+      {open && (
+        <div className="px-3 pb-3 space-y-2">
+          {steps.map((step, i) => (
+            <div key={i} className="flex items-start gap-2">
+              <div className="size-5 rounded-full bg-violet-100 flex items-center justify-center shrink-0 mt-0.5">
+                <span className="text-[9px] font-bold text-violet-600">{i + 1}</span>
+              </div>
+              <div>
+                <p className="text-[11px] font-semibold text-slate-700">
+                  {TOOL_LABELS[step.tool] ?? step.tool}
+                </p>
+                <p className="text-[10px] text-slate-400">{step.result_summary}</p>
+                {Object.keys(step.args).length > 0 && (
+                  <p className="text-[10px] text-slate-400 font-mono mt-0.5 truncate max-w-xs">
+                    {Object.entries(step.args)
+                      .map(([k, v]) => `${k}=${JSON.stringify(v)}`)
+                      .join(", ")}
+                  </p>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -189,18 +255,13 @@ function MessageBubble({ msg }: { msg: ChatMessage }) {
 
   return (
     <div className={`flex gap-3 ${isUser ? "flex-row-reverse" : "flex-row"}`}>
-      {/* Avatar */}
       <div className={`size-8 rounded-full flex items-center justify-center shrink-0 mt-1 ${
         isUser ? "bg-violet-600" : "bg-slate-800"
       }`}>
-        {isUser
-          ? <User className="size-4 text-white" />
-          : <Bot className="size-4 text-white" />
-        }
+        {isUser ? <User className="size-4 text-white" /> : <Bot className="size-4 text-white" />}
       </div>
 
-      <div className={`flex-1 max-w-[80%] space-y-3 ${isUser ? "items-end" : "items-start"} flex flex-col`}>
-        {/* Text bubble */}
+      <div className={`flex-1 max-w-[82%] space-y-3 ${isUser ? "items-end" : "items-start"} flex flex-col`}>
         <div className={`rounded-2xl px-4 py-3 text-sm leading-relaxed ${
           isUser
             ? "bg-violet-600 text-white rounded-tr-sm"
@@ -211,6 +272,11 @@ function MessageBubble({ msg }: { msg: ChatMessage }) {
           {msg.content}
         </div>
 
+        {/* Agent reasoning steps */}
+        {msg.steps && msg.steps.length > 0 && (
+          <AgentStepsPanel steps={msg.steps} />
+        )}
+
         {/* Source clips */}
         {msg.sources && msg.sources.length > 0 && (
           <div className="w-full space-y-2">
@@ -220,7 +286,7 @@ function MessageBubble({ msg }: { msg: ChatMessage }) {
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {msg.sources.map((clip) => (
-                <SourceCard key={clip.event_id} clip={clip} />
+                <SourceCard key={clip.id} clip={clip} />
               ))}
             </div>
           </div>
@@ -255,6 +321,8 @@ function TypingIndicator() {
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
+const SESSION_STORAGE_KEY = "argusv_chat_session_id";
+
 const SUGGESTED = [
   "Were there any people loitering near the entrance recently?",
   "Show me all HIGH threat detections from the past hour",
@@ -269,10 +337,16 @@ export default function ChatPage() {
   const [cameras, setCameras] = useState<CameraItem[]>([]);
   const [selectedCam, setSelectedCam] = useState("all");
   const [sourceLimit, setSourceLimit] = useState(6);
+  const [sessionId, setSessionId] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  // Load cameras for filter
+  // Load persisted session_id from localStorage
+  useEffect(() => {
+    const stored = localStorage.getItem(SESSION_STORAGE_KEY);
+    if (stored) setSessionId(stored);
+  }, []);
+
   useEffect(() => {
     authFetch("/api/cameras")
       .then((r) => r.json())
@@ -280,10 +354,15 @@ export default function ChatPage() {
       .catch(() => {});
   }, []);
 
-  // Auto-scroll on new messages
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
+
+  function clearSession() {
+    setMessages([]);
+    setSessionId(null);
+    localStorage.removeItem(SESSION_STORAGE_KEY);
+  }
 
   async function send(text: string) {
     const q = text.trim();
@@ -295,7 +374,6 @@ export default function ChatPage() {
       content: q,
     };
 
-    const history = messages.map((m) => ({ role: m.role, content: m.content }));
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
     setLoading(true);
@@ -303,9 +381,9 @@ export default function ChatPage() {
     try {
       const body: Record<string, unknown> = {
         message: q,
-        history,
         limit: sourceLimit,
       };
+      if (sessionId) body.session_id = sessionId;
       if (selectedCam !== "all") body.camera_id = selectedCam;
 
       const res = await authFetch("/api/chat", {
@@ -320,6 +398,13 @@ export default function ChatPage() {
       }
 
       const data = await res.json();
+
+      // Persist session_id
+      if (data.session_id) {
+        setSessionId(data.session_id);
+        localStorage.setItem(SESSION_STORAGE_KEY, data.session_id);
+      }
+
       setMessages((prev) => [
         ...prev,
         {
@@ -327,6 +412,7 @@ export default function ChatPage() {
           role: "assistant",
           content: data.answer,
           sources: data.sources ?? [],
+          steps: data.steps ?? [],
         },
       ]);
     } catch (e) {
@@ -363,9 +449,19 @@ export default function ChatPage() {
           </div>
           <div>
             <p className="text-sm font-bold text-slate-900 leading-tight">ArgusV Chat</p>
-            <p className="text-[11px] text-slate-400">Ask questions about your footage</p>
+            <p className="text-[11px] text-slate-400">Agentic security analyst · tool-augmented</p>
           </div>
         </div>
+
+        {/* Session indicator */}
+        {sessionId && (
+          <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-violet-50 border border-violet-100">
+            <div className="size-1.5 rounded-full bg-violet-500 animate-pulse" />
+            <span className="text-[10px] font-semibold text-violet-600">
+              Session active · {sessionId.slice(0, 8)}
+            </span>
+          </div>
+        )}
 
         <div className="flex items-center gap-2 ml-auto flex-wrap">
           {/* Camera filter */}
@@ -399,14 +495,14 @@ export default function ChatPage() {
             </select>
           </div>
 
-          {/* Clear */}
+          {/* Clear session */}
           {messages.length > 0 && (
             <button
               type="button"
-              onClick={() => setMessages([])}
+              onClick={clearSession}
               className="flex items-center gap-1 text-xs text-slate-400 hover:text-slate-600 px-2 py-1.5 rounded-lg hover:bg-slate-50 border border-transparent hover:border-slate-200 transition-colors"
             >
-              <X className="size-3.5" />Clear
+              <X className="size-3.5" />New session
             </button>
           )}
         </div>
@@ -421,11 +517,14 @@ export default function ChatPage() {
               <Bot className="size-8 text-white" />
             </div>
             <h2 className="text-xl font-bold text-slate-800 mb-1">ArgusV Security AI</h2>
-            <p className="text-sm text-slate-400 mb-8 max-w-sm">
-              Ask anything about your camera footage. Answers are grounded in real VLM-analysed detections.
+            <p className="text-sm text-slate-400 mb-2 max-w-sm">
+              An agentic analyst that searches your footage, retrieves evidence, and answers intelligently.
             </p>
+            <div className="flex items-center gap-1.5 mb-8 text-[11px] text-slate-500 bg-slate-100 px-3 py-1.5 rounded-full">
+              <Wrench className="size-3 text-violet-500" />
+              Uses tools · remembers your session
+            </div>
 
-            {/* Camera scope indicator */}
             <div className="mb-6 px-3 py-1.5 rounded-full bg-slate-100 text-xs text-slate-500 flex items-center gap-1.5">
               <Camera className="size-3" />
               {selectedCam === "all"
@@ -463,11 +562,7 @@ export default function ChatPage() {
           <div className="flex items-center gap-1.5 mb-2 text-[11px] text-violet-600 font-medium">
             <Camera className="size-3" />
             Filtering to {cameras.find(c => c.camera_id === selectedCam)?.name ?? selectedCam} only
-            <button
-              type="button"
-              onClick={() => setSelectedCam("all")}
-              className="ml-1 text-slate-400 hover:text-slate-600"
-            >
+            <button type="button" onClick={() => setSelectedCam("all")} className="ml-1 text-slate-400 hover:text-slate-600">
               <X className="size-3" />
             </button>
           </div>
@@ -499,7 +594,8 @@ export default function ChatPage() {
           </button>
         </div>
         <p className="text-[10px] text-slate-400 mt-2 text-center">
-          Answers grounded in VLM-analysed detections · Requires <span className="font-mono">OPENAI_API_KEY</span>
+          Agentic search across detections, segments & incidents ·{" "}
+          <span className="font-mono">OPENAI_API_KEY</span> required
         </p>
       </div>
 
