@@ -122,4 +122,94 @@ export function RagSection() {
     }
   }
 
-  
+  async function handleAdd() {
+    if (!newKey.trim()) {
+      return;
+    }
+
+    setSaving(true);
+    setError("");
+
+    try {
+      let parsed: unknown = newValue;
+
+      try {
+        parsed = JSON.parse(newValue);
+      } catch {
+        // Keep plain strings as-is when JSON parsing fails.
+      }
+
+      await upsert(newKey.trim(), parsed);
+      setEntries((current) => [
+        ...current,
+        { key: newKey.trim(), group: "rag", value: parsed },
+      ]);
+      setNewKey("");
+      setNewValue("");
+      setMessage(`Added "${newKey.trim()}"`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Add failed");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <AdminSection
+      title="RAG / Embedding Config"
+      icon={<Database className="size-4 text-cyan-500" />}
+    >
+      {loading ? (
+        <p className="text-sm text-slate-400">Loading…</p>
+      ) : (
+        <div className="space-y-3">
+          {entries.length === 0 && (
+            <p className="text-sm italic text-slate-400">
+              No RAG config entries yet. Add one below.
+            </p>
+          )}
+          {entries.map((entry) => (
+            <RagEntryRow
+              key={entry.key}
+              entry={entry}
+              onSave={(rawValue) => handleUpdate(entry, rawValue)}
+              onDelete={() => handleDelete(entry.key)}
+              saving={saving}
+            />
+          ))}
+        </div>
+      )}
+
+      <div className="mt-4 border-t border-slate-100 pt-4">
+        <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
+          Add Entry
+        </p>
+        <div className="flex flex-wrap gap-3">
+          <input
+            placeholder="key (e.g. retrieval_limit)"
+            value={newKey}
+            onChange={(event) => setNewKey(event.target.value)}
+            className="min-w-[160px] flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-cyan-500"
+          />
+          <input
+            placeholder="value (JSON or string)"
+            value={newValue}
+            onChange={(event) => setNewValue(event.target.value)}
+            className="min-w-[160px] flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-cyan-500"
+          />
+          <button
+            type="button"
+            onClick={handleAdd}
+            disabled={saving || !newKey.trim()}
+            className="flex items-center gap-2 rounded-lg bg-cyan-600 px-4 py-2 text-sm font-medium text-white hover:bg-cyan-700 disabled:opacity-50"
+          >
+            <Plus className="size-4" /> Add
+          </button>
+        </div>
+      </div>
+
+      {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
+      {message && <p className="mt-3 text-sm text-green-600">{message}</p>}
+    </AdminSection>
+  );
+}
