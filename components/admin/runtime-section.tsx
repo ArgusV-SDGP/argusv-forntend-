@@ -67,3 +67,20 @@ export function RuntimeSection() {
       setSaving(false);
     }
   }
+
+  function setValue(key: string, raw: string) {
+    const previousValue = config[key];
+    let parsed: string | number | boolean;
+
+    if (typeof previousValue === "boolean") {
+      parsed = raw === "true";
+    } else if (typeof previousValue === "number") {
+      parsed = Number(raw);
+    } else {
+      parsed = raw;
+    }
+
+    setConfig((current) => ({ ...current, [key]: parsed }));
+  }
+
+  
