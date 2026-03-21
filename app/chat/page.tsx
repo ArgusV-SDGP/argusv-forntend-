@@ -169,7 +169,7 @@ export default function ChatPage() {
       <div className="flex-1 overflow-y-auto px-4 md:px-6 py-6 space-y-6">
 
         {messages.length === 0 && (
-          <div className="flex flex-col items-center justify-center h-full text-center pb-20">
+          <div className="flex flex-col items-center justify-center h-full text-center pb-20 pt-10">
             <div className="size-16 rounded-2xl bg-slate-900 flex items-center justify-center mb-4 shadow-lg">
               <Bot className="size-8 text-white" />
             </div>
