@@ -97,21 +97,23 @@ export default function ChatPage() {
         onClear={() => setMessages([])}
       />
 
-      <div className="flex-1 overflow-y-auto px-4 md:px-6 py-6 space-y-6">
-        {messages.length === 0 && (
-          <ChatEmptyState
-            selectedCam={selectedCam}
-            cameras={cameras}
-            onSend={send}
-          />
-        )}
+      <div className="flex-1 overflow-y-auto px-4 md:px-6 py-6">
+        <div className="max-w-2xl mx-auto space-y-6">
+          {messages.length === 0 && (
+            <ChatEmptyState
+              selectedCam={selectedCam}
+              cameras={cameras}
+              onSend={send}
+            />
+          )}
 
-        {messages.map((msg) => (
-          <MessageBubble key={msg.id} msg={msg} />
-        ))}
+          {messages.map((msg) => (
+            <MessageBubble key={msg.id} msg={msg} />
+          ))}
 
-        {loading && <TypingIndicator />}
-        <div ref={bottomRef} />
+          {loading && <TypingIndicator />}
+          <div ref={bottomRef} />
+        </div>
       </div>
 
       <ChatInput
