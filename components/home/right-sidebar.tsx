@@ -113,7 +113,7 @@ export function RightSidebar() {
   }, []);
 
   return (
-    <div className="flex min-h-0 w-full flex-col border-t border-gray-200 bg-white lg:h-full lg:w-80 lg:overflow-hidden lg:border-l lg:border-t-0">
+    <div className="flex min-h-0 w-full flex-col border-t border-gray-200 bg-white lg:h-full lg:w-80 lg:max-w-80 lg:overflow-hidden lg:border-l lg:border-t-0">
       <div className="shrink-0 border-b border-gray-100 p-4">
         <div className="flex items-start justify-between gap-3">
           <div>
@@ -135,7 +135,7 @@ export function RightSidebar() {
         </div>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto p-4">
+      <div className="ux-scrollbar min-h-0 flex-1 overflow-y-auto p-4 max-lg:max-h-[28rem]">
         <h2 className="mb-2 flex items-center gap-1 text-xs font-bold tracking-wider text-gray-500">
           <Radio className="size-3" /> RECENT EVENTS
           {alerts.length > 0 ? (

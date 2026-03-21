@@ -2,8 +2,8 @@ export function MainCameraGridSkeleton() {
   return (
     <div className="flex-1 min-h-0 bg-slate-100 p-2 sm:p-4 lg:overflow-y-auto">
       <div className="mx-auto max-w-[1500px]">
-        <div className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">
-          <div className="aspect-[16/9] animate-pulse bg-slate-200" />
+        <div className="overflow-hidden rounded-[20px] border border-slate-200 bg-white shadow-sm sm:rounded-[28px]">
+          <div className="aspect-[16/9] min-h-[220px] animate-pulse bg-slate-200 sm:min-h-[320px] md:min-h-[380px] lg:min-h-[420px]" />
 
           <div className="border-t border-slate-200 p-4 sm:p-6">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">

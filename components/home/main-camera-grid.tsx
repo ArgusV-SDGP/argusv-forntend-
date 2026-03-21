@@ -14,7 +14,7 @@ export async function MainCameraGrid() {
   }
 
   return (
-    <div className="flex-1 p-2 sm:p-4 bg-slate-100 lg:overflow-y-auto min-h-0">
+    <div className="ux-scrollbar flex-1 min-h-0 bg-slate-100 p-2 sm:p-4 lg:overflow-y-auto">
       {cameras.length === 0 ? (
         <div className="mb-2 flex min-h-[240px] items-center justify-center rounded-lg border border-dashed border-slate-300 bg-white/70 px-6 text-center">
           <div>
