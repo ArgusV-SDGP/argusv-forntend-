@@ -95,41 +95,47 @@ export function NavigationBar() {
       <NavigationMenu className="hidden md:flex rounded-full border border-border/50 bg-background/50 backdrop-blur-sm px-1 py-1 shadow-xs">
         <NavigationMenuList className="gap-0">
           <NavigationMenuItem>
-            <Link href="/" legacyBehavior passHref>
-              <NavigationMenuLink className={getLinkStyle("/")}>
-                Live Feed
-              </NavigationMenuLink>
-            </Link>
+            <NavigationMenuLink
+              render={<Link href="/" />}
+              className={getLinkStyle("/")}
+            >
+              Live Feed
+            </NavigationMenuLink>
           </NavigationMenuItem>
           <NavigationMenuItem>
-            <Link href="/recordings" legacyBehavior passHref>
-              <NavigationMenuLink className={getLinkStyle("/recordings")}>
-                Recordings
-              </NavigationMenuLink>
-            </Link>
+            <NavigationMenuLink
+              render={<Link href="/recordings" />}
+              className={getLinkStyle("/recordings")}
+            >
+              Recordings
+            </NavigationMenuLink>
           </NavigationMenuItem>
           <NavigationMenuItem>
-            <Link href="/detections" legacyBehavior passHref>
-              <NavigationMenuLink className={getLinkStyle("/detections")}>
-                Detections
-              </NavigationMenuLink>
-            </Link>
+            <NavigationMenuLink
+              render={<Link href="/detections" />}
+              className={getLinkStyle("/detections")}
+            >
+              Detections
+            </NavigationMenuLink>
           </NavigationMenuItem>
           <NavigationMenuItem>
-            <Link href="/chat" legacyBehavior passHref>
-              <NavigationMenuLink className={getLinkStyle("/chat")}>
-                <span className="flex items-center gap-1.5">
-                  <Bot className="size-3.5" />Chat
-                </span>
-              </NavigationMenuLink>
-            </Link>
+            <NavigationMenuLink
+              render={<Link href="/chat" />}
+              className={getLinkStyle("/chat")}
+            >
+              <span className="flex items-center gap-1.5">
+                <Bot className="size-3.5" />
+                Chat
+              </span>
+            </NavigationMenuLink>
           </NavigationMenuItem>
           <NavigationMenuItem>
-            <Link href="/zones" legacyBehavior passHref>
-              <NavigationMenuLink className={getLinkStyle("/zones")}>
-                Zones
-              </NavigationMenuLink>
-            </Link>
+            <NavigationMenuLink
+              render={<Link href="/zones" />}
+              className={getLinkStyle("/zones")}
+            >
+              Zones
+            </NavigationMenuLink>
           </NavigationMenuItem>
         </NavigationMenuList>
       </NavigationMenu>
