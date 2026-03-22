@@ -14,14 +14,14 @@ export async function MainCameraGrid() {
   }
 
   return (
-    <div className="ux-scrollbar flex-1 min-h-0 bg-slate-100 p-2 sm:p-4 lg:overflow-y-auto">
+    <div className="ux-scrollbar flex-1 min-h-0 bg-[#0a0a0a] p-2 sm:p-4 lg:overflow-y-auto">
       {cameras.length === 0 ? (
-        <div className="mb-2 flex min-h-[240px] items-center justify-center rounded-lg border border-dashed border-slate-300 bg-white/70 px-6 text-center">
+        <div className="mb-2 flex min-h-[240px] items-center justify-center rounded-lg border border-dashed border-white/10 bg-white/[0.02] px-6 text-center">
           <div>
-            <p className="text-sm font-semibold text-slate-700">
+            <p className="text-sm font-semibold text-white/60">
               Camera feed is unavailable
             </p>
-            <p className="mt-2 text-xs text-slate-500">
+            <p className="mt-2 text-xs text-white/30">
               The server could not load `/api/cameras` with the required headers.
             </p>
           </div>

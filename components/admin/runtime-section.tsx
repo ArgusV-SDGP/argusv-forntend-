@@ -25,6 +25,15 @@ const RUNTIME_LABELS: Record<string, string> = {
   rate_limit_ttl_sec: "Rate Limit TTL (sec)",
 };
 
+const inputClass =
+  "w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2 text-sm text-white/80 focus:outline-none focus:ring-1 focus:ring-[#18ffbe]/30";
+
+const selectClass =
+  "w-full rounded-lg border border-white/10 bg-[#111111] px-3 py-2 text-sm text-white/80 focus:outline-none focus:ring-1 focus:ring-[#18ffbe]/30 [&>option]:bg-[#111111] [&>option]:text-white/80";
+
+const labelClass =
+  "text-[11px] font-semibold uppercase tracking-wide text-white/40";
+
 export function RuntimeSection() {
   const [config, setConfig] = useState<RuntimeConfig>({});
   const [loading, setLoading] = useState(true);
@@ -84,21 +93,21 @@ export function RuntimeSection() {
   }
 
   return (
-    <AdminSection title="Runtime Config" icon={<Cpu className="size-4 text-indigo-500" />}>
+    <AdminSection title="Runtime Config" icon={<Cpu className="size-4 text-indigo-400" />}>
       {loading ? (
-        <p className="text-sm text-slate-400">Loading…</p>
+        <p className="text-sm text-white/40">Loading…</p>
       ) : (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {Object.entries(config).map(([key, value]) => (
             <div key={key} className="space-y-1">
-              <label className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+              <label className={labelClass}>
                 {RUNTIME_LABELS[key] ?? key}
               </label>
               {typeof value === "boolean" ? (
                 <select
                   value={String(value)}
                   onChange={(event) => setValue(key, event.target.value)}
-                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className={selectClass}
                 >
                   <option value="true">Enabled</option>
                   <option value="false">Disabled</option>
@@ -109,7 +118,7 @@ export function RuntimeSection() {
                   value={String(value ?? "")}
                   onChange={(event) => setValue(key, event.target.value)}
                   step={typeof value === "number" && !Number.isInteger(value) ? "0.01" : "1"}
-                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className={inputClass}
                 />
               )}
             </div>
@@ -117,15 +126,15 @@ export function RuntimeSection() {
         </div>
       )}
 
-      {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
-      {message && <p className="mt-4 text-sm text-green-600">{message}</p>}
+      {error && <p className="mt-4 text-sm text-red-400">{error}</p>}
+      {message && <p className="mt-4 text-sm text-[#18ffbe]">{message}</p>}
 
       <div className="mt-6 flex gap-3">
         <button
           type="button"
           onClick={handleSave}
           disabled={saving || loading}
-          className="flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+          className="flex items-center gap-2 rounded-lg bg-[#18ffbe] px-5 py-2 text-sm font-medium text-black hover:bg-[#18ffbe]/90 disabled:opacity-50"
         >
           <Save className="size-4" />
           {saving ? "Saving…" : "Save Changes"}
@@ -134,7 +143,7 @@ export function RuntimeSection() {
           type="button"
           onClick={load}
           disabled={loading}
-          className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-50"
+          className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.06] px-4 py-2 text-sm font-medium text-white/60 hover:bg-white/[0.1] disabled:opacity-50"
         >
           <RefreshCw className={`size-4 ${loading ? "animate-spin" : ""}`} />
           Reload

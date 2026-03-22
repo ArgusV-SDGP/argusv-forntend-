@@ -24,12 +24,12 @@ export function DetectionsBreakdown({
 
   return (
     <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
-      <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <h2 className="mb-4 flex items-center gap-2 text-sm font-bold text-slate-700">
-          <Shield className="size-4 text-slate-400" /> Object Classes
+      <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur-sm">
+        <h2 className="mb-4 flex items-center gap-2 text-sm font-bold text-white/70">
+          <Shield className="size-4 text-white/30" /> Object Classes
         </h2>
         {classSorted.length === 0 ? (
-          <p className="text-xs text-slate-400">No data</p>
+          <p className="text-xs text-white/30">No data</p>
         ) : (
           <div className="space-y-3">
             {classSorted.map(([cls, count], index) => (
@@ -45,12 +45,12 @@ export function DetectionsBreakdown({
         )}
       </div>
 
-      <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <h2 className="mb-4 flex items-center gap-2 text-sm font-bold text-slate-700">
-          <Zap className="size-4 text-slate-400" /> Event Types
+      <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur-sm">
+        <h2 className="mb-4 flex items-center gap-2 text-sm font-bold text-white/70">
+          <Zap className="size-4 text-white/30" /> Event Types
         </h2>
         {Object.keys(byEvent).length === 0 ? (
-          <p className="text-xs text-slate-400">No data</p>
+          <p className="text-xs text-white/30">No data</p>
         ) : (
           <div className="space-y-3">
             {Object.entries(byEvent)
@@ -68,16 +68,16 @@ export function DetectionsBreakdown({
         )}
       </div>
 
-      <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <h2 className="mb-4 flex items-center gap-2 text-sm font-bold text-slate-700">
-          <ShieldCheck className="size-4 text-slate-400" /> Threat Levels
+      <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur-sm">
+        <h2 className="mb-4 flex items-center gap-2 text-sm font-bold text-white/70">
+          <ShieldCheck className="size-4 text-white/30" /> Threat Levels
         </h2>
         <div className="space-y-3">
           {[
             { level: "HIGH", count: high, color: "bg-red-500" },
             { level: "MEDIUM", count: medium, color: "bg-orange-400" },
-            { level: "LOW", count: low, color: "bg-slate-400" },
-            { level: "No VLM", count: noThreatLevelCount, color: "bg-slate-200" },
+            { level: "LOW", count: low, color: "bg-slate-500" },
+            { level: "No VLM", count: noThreatLevelCount, color: "bg-white/20" },
           ].map(({ level, count, color }) => (
             <ClassBar key={level} label={level} count={count} total={total} color={color} />
           ))}

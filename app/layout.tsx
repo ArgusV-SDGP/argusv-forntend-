@@ -29,7 +29,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <div className="min-h-screen bg-background text-foreground">
+        <div className="min-h-screen bg-[#0a0a0a] text-white">
           <AuthGuard />
           <NavbarWrapper />
           {children}

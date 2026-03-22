@@ -22,26 +22,27 @@ export default function ChatHeader({
   hasMessages,
   onClear,
 }: Props) {
+  const selectClass = "text-xs bg-white/[0.06] border border-white/10 rounded-lg px-2 py-1.5 text-white/70 focus:outline-none focus:ring-2 focus:ring-[#18ffbe]/30";
+
   return (
-    <div className="shrink-0 bg-white border-b border-slate-200 px-4 md:px-6 py-3 flex items-center gap-4 flex-wrap">
+    <div className="shrink-0 bg-[#0f0f0f] border-b border-white/[0.06] px-4 md:px-6 py-3 flex items-center gap-4 flex-wrap">
       <div className="flex items-center gap-2.5">
-        <div className="size-8 rounded-xl bg-slate-900 flex items-center justify-center">
-          <Bot className="size-4 text-white" />
+        <div className="size-8 rounded-xl bg-[#18ffbe]/10 border border-[#18ffbe]/20 flex items-center justify-center">
+          <Bot className="size-4 text-[#18ffbe]" />
         </div>
         <div>
-          <p className="text-sm font-bold text-slate-900 leading-tight">ArgusV Chat</p>
-          <p className="text-[11px] text-slate-400">Ask questions about your footage</p>
+          <p className="text-sm font-bold text-white leading-tight">ArgusV Chat</p>
+          <p className="text-[11px] text-white/30">Ask questions about your footage</p>
         </div>
       </div>
 
       <div className="flex items-center gap-2 ml-auto flex-wrap">
-        {/* Camera filter */}
         <div className="flex items-center gap-1.5">
-          <Camera className="size-3.5 text-slate-400" />
+          <Camera className="size-3.5 text-white/30" />
           <select
             value={selectedCam}
             onChange={(e) => onCamChange(e.target.value)}
-            className="text-xs bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-violet-500"
+            className={selectClass}
           >
             <option value="all">All cameras</option>
             {cameras.map((c) => (
@@ -52,13 +53,12 @@ export default function ChatHeader({
           </select>
         </div>
 
-        {/* Source count */}
         <div className="flex items-center gap-1.5">
-          <Sparkles className="size-3.5 text-slate-400" />
+          <Sparkles className="size-3.5 text-white/30" />
           <select
             value={sourceLimit}
             onChange={(e) => onSourceLimitChange(Number(e.target.value))}
-            className="text-xs bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-violet-500"
+            className={selectClass}
           >
             <option value={4}>4 sources</option>
             <option value={6}>6 sources</option>
@@ -66,12 +66,11 @@ export default function ChatHeader({
           </select>
         </div>
 
-        {/* Clear */}
         {hasMessages && (
           <button
             type="button"
             onClick={onClear}
-            className="flex items-center gap-1 text-xs text-slate-400 hover:text-slate-600 px-2 py-1.5 rounded-lg hover:bg-slate-50 border border-transparent hover:border-slate-200 transition-colors"
+            className="flex items-center gap-1 text-xs text-white/30 hover:text-white/60 px-2 py-1.5 rounded-lg hover:bg-white/[0.06] border border-transparent hover:border-white/10 transition-colors"
           >
             <X className="size-3.5" />Clear
           </button>

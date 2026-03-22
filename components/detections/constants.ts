@@ -1,27 +1,27 @@
 export const THREAT_STYLES: Record<string, { badge: string; dot: string }> = {
-  HIGH: { badge: "border-red-200 bg-red-100 text-red-700", dot: "bg-red-500" },
+  HIGH: { badge: "border-red-500/30 bg-red-500/15 text-red-400", dot: "bg-red-500" },
   MEDIUM: {
-    badge: "border-orange-200 bg-orange-100 text-orange-700",
+    badge: "border-orange-500/30 bg-orange-500/15 text-orange-400",
     dot: "bg-orange-400",
   },
-  LOW: { badge: "border-slate-200 bg-slate-100 text-slate-600", dot: "bg-slate-400" },
-  PENDING: { badge: "border-blue-200 bg-blue-50 text-blue-500", dot: "bg-blue-400" },
+  LOW: { badge: "border-white/10 bg-white/[0.06] text-white/50", dot: "bg-white/40" },
+  PENDING: { badge: "border-blue-500/30 bg-blue-500/15 text-blue-400", dot: "bg-blue-400" },
 };
 
 export const THREAT_DEFAULT = {
-  badge: "border-slate-200 bg-slate-100 text-slate-500",
-  dot: "bg-slate-300",
+  badge: "border-white/10 bg-white/[0.06] text-white/40",
+  dot: "bg-white/20",
 };
 
 export const EVENT_COLORS: Record<string, string> = {
-  START: "border-blue-100 bg-blue-50 text-blue-700",
-  LOITERING: "border-red-100 bg-red-50 text-red-700",
-  UPDATE: "border-slate-200 bg-slate-50 text-slate-600",
-  END: "border-emerald-100 bg-emerald-50 text-emerald-700",
-  DETECTED: "border-violet-100 bg-violet-50 text-violet-700",
+  START: "border-blue-500/30 bg-blue-500/15 text-blue-400",
+  LOITERING: "border-red-500/30 bg-red-500/15 text-red-400",
+  UPDATE: "border-white/10 bg-white/[0.06] text-white/50",
+  END: "border-emerald-500/30 bg-emerald-500/15 text-emerald-400",
+  DETECTED: "border-violet-500/30 bg-violet-500/15 text-violet-400",
 };
 
-export const EVENT_DEFAULT = "border-slate-200 bg-slate-50 text-slate-500";
+export const EVENT_DEFAULT = "border-white/10 bg-white/[0.06] text-white/40";
 
 export const BAR_COLORS = [
   "bg-blue-500",

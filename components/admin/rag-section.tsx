@@ -13,33 +13,36 @@ type RagEntryRowProps = {
   saving: boolean;
 };
 
+const inputClass =
+  "w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2 text-sm text-white/80 placeholder-white/20 focus:outline-none focus:ring-1 focus:ring-[#18ffbe]/30";
+
 function RagEntryRow({ entry, onSave, onDelete, saving }: RagEntryRowProps) {
   const [draft, setDraft] = useState(
     typeof entry.value === "string" ? entry.value : JSON.stringify(entry.value)
   );
 
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5">
-      <span className="min-w-[140px] shrink-0 text-xs font-bold font-mono text-slate-700">
+    <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5">
+      <span className="min-w-[140px] shrink-0 text-xs font-bold font-mono text-white/60">
         {entry.key}
       </span>
       <input
         value={draft}
         onChange={(event) => setDraft(event.target.value)}
-        className="flex-1 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-cyan-500"
+        className={inputClass}
       />
       <button
         type="button"
         onClick={() => onSave(draft)}
         disabled={saving}
-        className="shrink-0 rounded-lg bg-cyan-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-cyan-700 disabled:opacity-50"
+        className="shrink-0 rounded-lg bg-[#18ffbe]/10 border border-[#18ffbe]/20 px-3 py-1.5 text-xs font-medium text-[#18ffbe] hover:bg-[#18ffbe]/20 disabled:opacity-50"
       >
         Save
       </button>
       <button
         type="button"
         onClick={onDelete}
-        className="shrink-0 rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-500"
+        className="shrink-0 rounded-lg p-1.5 text-white/30 transition-colors hover:bg-red-500/10 hover:text-red-400"
       >
         <Trash2 className="size-4" />
       </button>
@@ -157,14 +160,14 @@ export function RagSection() {
   return (
     <AdminSection
       title="RAG / Embedding Config"
-      icon={<Database className="size-4 text-cyan-500" />}
+      icon={<Database className="size-4 text-cyan-400" />}
     >
       {loading ? (
-        <p className="text-sm text-slate-400">Loading…</p>
+        <p className="text-sm text-white/40">Loading…</p>
       ) : (
         <div className="space-y-3">
           {entries.length === 0 && (
-            <p className="text-sm italic text-slate-400">
+            <p className="text-sm italic text-white/40">
               No RAG config entries yet. Add one below.
             </p>
           )}
@@ -180,8 +183,8 @@ export function RagSection() {
         </div>
       )}
 
-      <div className="mt-4 border-t border-slate-100 pt-4">
-        <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
+      <div className="mt-4 border-t border-white/[0.06] pt-4">
+        <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-white/40">
           Add Entry
         </p>
         <div className="flex flex-wrap gap-3">
@@ -189,27 +192,27 @@ export function RagSection() {
             placeholder="key (e.g. retrieval_limit)"
             value={newKey}
             onChange={(event) => setNewKey(event.target.value)}
-            className="min-w-[160px] flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-cyan-500"
+            className="min-w-[160px] flex-1 rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2 text-sm text-white/80 placeholder-white/20 focus:outline-none focus:ring-1 focus:ring-[#18ffbe]/30"
           />
           <input
             placeholder="value (JSON or string)"
             value={newValue}
             onChange={(event) => setNewValue(event.target.value)}
-            className="min-w-[160px] flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-cyan-500"
+            className="min-w-[160px] flex-1 rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2 text-sm text-white/80 placeholder-white/20 focus:outline-none focus:ring-1 focus:ring-[#18ffbe]/30"
           />
           <button
             type="button"
             onClick={handleAdd}
             disabled={saving || !newKey.trim()}
-            className="flex items-center gap-2 rounded-lg bg-cyan-600 px-4 py-2 text-sm font-medium text-white hover:bg-cyan-700 disabled:opacity-50"
+            className="flex items-center gap-2 rounded-lg bg-[#18ffbe] px-4 py-2 text-sm font-medium text-black hover:bg-[#18ffbe]/90 disabled:opacity-50"
           >
             <Plus className="size-4" /> Add
           </button>
         </div>
       </div>
 
-      {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
-      {message && <p className="mt-3 text-sm text-green-600">{message}</p>}
+      {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
+      {message && <p className="mt-3 text-sm text-[#18ffbe]">{message}</p>}
     </AdminSection>
   );
 }

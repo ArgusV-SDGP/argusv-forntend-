@@ -155,16 +155,16 @@ export function NavigationBar() {
             />
           </button>
           {isProfileMenuOpen ? (
-            <div className="absolute right-0 top-12 w-52 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-[0_10px_24px_rgba(15,23,42,0.12)]">
-              <div className="px-4 py-3 border-b border-slate-100">
+            <div className="absolute right-0 top-12 w-52 overflow-hidden rounded-xl border border-white/10 bg-[#111111] shadow-[0_16px_40px_rgba(0,0,0,0.6)] backdrop-blur-xl">
+              <div className="px-4 py-3 border-b border-white/10">
                 <div>
-                  <p className="text-sm font-semibold leading-tight text-slate-900">
+                  <p className="text-sm font-semibold leading-tight text-white">
                     {username}
                   </p>
-                  <p className="mt-0.5 text-xs text-slate-500 capitalize">
+                  <p className="mt-0.5 text-xs text-white/50 capitalize">
                     {userRole.toLowerCase()}
                   </p>
-                  <p className="mt-0.5 text-xs font-medium tracking-wide text-blue-600">
+                  <p className="mt-0.5 text-xs font-medium tracking-wide text-[#18ffbe]">
                     ArgusV Access
                   </p>
                 </div>
@@ -175,27 +175,27 @@ export function NavigationBar() {
                     <Link
                       href="/user-profile"
                       onClick={() => setIsProfileMenuOpen(false)}
-                      className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm font-medium text-slate-900 transition-colors hover:bg-slate-50"
+                      className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm font-medium text-white/80 transition-colors hover:bg-white/[0.06] hover:text-white"
                     >
-                      <UserRound className="size-3.5 text-slate-700" />
+                      <UserRound className="size-3.5 text-white/50" />
                       <span>Go to profile</span>
                     </Link>
                     <Link
                       href="/admin"
                       onClick={() => setIsProfileMenuOpen(false)}
-                      className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm font-medium text-slate-900 transition-colors hover:bg-slate-50"
+                      className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm font-medium text-white/80 transition-colors hover:bg-white/[0.06] hover:text-white"
                     >
-                      <Settings className="size-3.5 text-slate-700" />
-                      <span>Setting</span>
+                      <Settings className="size-3.5 text-white/50" />
+                      <span>Settings</span>
                     </Link>
                   </>
                 ) : null}
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm font-medium text-slate-900 transition-colors hover:bg-slate-50"
+                  className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm font-medium text-white/80 transition-colors hover:bg-white/[0.06] hover:text-white"
                 >
-                  <LogOut className="size-3.5 text-slate-700" />
+                  <LogOut className="size-3.5 text-white/50" />
                   <span>Log out</span>
                 </button>
               </div>

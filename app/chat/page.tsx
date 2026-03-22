@@ -85,7 +85,7 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)] bg-slate-50 font-sans">
+    <div className="flex flex-col h-[calc(100vh-4rem)] bg-[#0a0a0a] font-sans">
 
       <ChatHeader
         cameras={cameras}
