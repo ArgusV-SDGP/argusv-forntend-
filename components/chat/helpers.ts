@@ -1,7 +1,7 @@
 export const THREAT_BADGE: Record<string, string> = {
-  HIGH:   "bg-red-100 text-red-700 border-red-200",
-  MEDIUM: "bg-orange-100 text-orange-700 border-orange-200",
-  LOW:    "bg-slate-100 text-slate-600 border-slate-200",
+  HIGH:   "bg-red-500/15 text-red-400 border-red-500/30",
+  MEDIUM: "bg-orange-500/15 text-orange-400 border-orange-500/30",
+  LOW:    "bg-white/[0.06] text-white/40 border-white/10",
 };
 
 export function formatTs(iso: string) {
@@ -13,9 +13,9 @@ export function formatTs(iso: string) {
 
 export function relevanceLabel(distance: number) {
   const score = 1 - distance;
-  if (score >= 0.85) return { label: "Strong match", color: "text-emerald-600" };
-  if (score >= 0.65) return { label: "Good match",   color: "text-blue-600" };
-  return                     { label: "Weak match",   color: "text-slate-400" };
+  if (score >= 0.85) return { label: "Strong match", color: "text-emerald-400" };
+  if (score >= 0.65) return { label: "Good match",   color: "text-blue-400" };
+  return                     { label: "Weak match",   color: "text-white/30" };
 }
 
 export const SUGGESTED = [

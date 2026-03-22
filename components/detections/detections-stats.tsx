@@ -23,32 +23,32 @@ export function DetectionsStats({ stats, limit }: DetectionsStatsProps) {
   return (
     <div className="mb-6 grid grid-cols-2 gap-4 xl:grid-cols-4">
       <StatCard
-        icon={<Activity className="size-5 text-violet-600" />}
+        icon={<Activity className="size-5 text-violet-400" />}
         label="Total Detections"
         value={stats.total}
         sub={`limit ${limit}`}
-        accent="bg-violet-50"
+        accent="bg-violet-500/10"
       />
       <StatCard
-        icon={<ShieldAlert className="size-5 text-red-600" />}
+        icon={<ShieldAlert className="size-5 text-red-400" />}
         label="Threats"
         value={stats.threats}
         sub={`${stats.high} HIGH · ${stats.medium} MEDIUM`}
-        accent="bg-red-50"
+        accent="bg-red-500/10"
       />
       <StatCard
-        icon={<TrendingUp className="size-5 text-blue-600" />}
+        icon={<TrendingUp className="size-5 text-blue-400" />}
         label="Avg Confidence"
         value={pct(stats.avgConf)}
         sub={`${stats.withVlm} with VLM analysis`}
-        accent="bg-blue-50"
+        accent="bg-blue-500/10"
       />
       <StatCard
-        icon={<Clock className="size-5 text-amber-600" />}
+        icon={<Clock className="size-5 text-amber-400" />}
         label="Loitering Events"
         value={stats.loitering}
         sub={`Avg dwell ${Math.round(stats.avgDwell)}s`}
-        accent="bg-amber-50"
+        accent="bg-amber-500/10"
       />
     </div>
   );

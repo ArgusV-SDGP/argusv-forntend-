@@ -29,14 +29,17 @@ export function DetectionsFilters({
   onLimitChange,
   onThreatsOnlyChange,
 }: DetectionsFiltersProps) {
+  const selectClass =
+    "rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2 text-sm text-white/80 focus:outline-none focus:ring-2 focus:ring-[#18ffbe]/40 focus:border-[#18ffbe]/40 transition-colors";
+
   return (
-    <div className="mb-4 flex flex-wrap items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-      <Filter className="size-4 shrink-0 text-slate-400" />
+    <div className="mb-4 flex flex-wrap items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-4 backdrop-blur-sm">
+      <Filter className="size-4 shrink-0 text-white/30" />
 
       <select
         value={camFilter}
         onChange={(e) => onCamFilterChange(e.target.value)}
-        className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-violet-500"
+        className={selectClass}
       >
         <option value="all">All Cameras</option>
         {cameras.map((camera) => (
@@ -49,7 +52,7 @@ export function DetectionsFilters({
       <select
         value={classFilter}
         onChange={(e) => onClassFilterChange(e.target.value)}
-        className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-violet-500"
+        className={selectClass}
       >
         <option value="all">All Classes</option>
         {knownClasses.map((itemClass) => (
@@ -62,24 +65,24 @@ export function DetectionsFilters({
       <select
         value={limit}
         onChange={(e) => onLimitChange(Number(e.target.value))}
-        className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-violet-500"
+        className={selectClass}
       >
         <option value={50}>Last 50</option>
         <option value={100}>Last 100</option>
         <option value={200}>Last 200</option>
       </select>
 
-      <label className="flex cursor-pointer select-none items-center gap-2 text-sm text-slate-600">
+      <label className="flex cursor-pointer select-none items-center gap-2 text-sm text-white/60">
         <input
           type="checkbox"
           checked={threatsOnly}
           onChange={(e) => onThreatsOnlyChange(e.target.checked)}
-          className="size-4 accent-violet-600"
+          className="size-4 accent-[#18ffbe]"
         />
         Threats only
       </label>
 
-      <span className="ml-auto text-xs text-slate-400">
+      <span className="ml-auto text-xs text-white/30">
         {detectionCount} detection{detectionCount !== 1 ? "s" : ""}
       </span>
     </div>

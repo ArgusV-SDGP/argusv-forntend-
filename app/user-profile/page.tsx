@@ -51,6 +51,12 @@ async function getResponseError(
   return data?.detail ?? data?.message ?? fallback;
 }
 
+const inputClass =
+  "w-full rounded-lg border border-white/10 bg-white/[0.06] px-4 py-3 text-sm text-white/80 placeholder-white/20 focus:border-[#18ffbe]/40 focus:outline-none focus:ring-2 focus:ring-[#18ffbe]/20";
+
+const selectClass =
+  "w-full rounded-lg border border-white/10 bg-[#111111] px-4 py-3 text-sm text-white/80 focus:border-[#18ffbe]/40 focus:outline-none focus:ring-2 focus:ring-[#18ffbe]/20 [&>option]:bg-[#111111] [&>option]:text-white/80";
+
 export default function UserProfilePage() {
   const router = useRouter();
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
@@ -226,8 +232,8 @@ export default function UserProfilePage() {
 
   if (isLoading) {
     return (
-      <main className="p-8">
-        <p className="text-sm text-muted-foreground">Loading admin profile...</p>
+      <main className="min-h-[calc(100vh-4rem)] bg-[#0a0a0a] p-8">
+        <p className="text-sm text-white/40">Loading admin profile...</p>
       </main>
     );
   }
@@ -237,61 +243,62 @@ export default function UserProfilePage() {
   }
 
   return (
-    <main className="min-h-[calc(100vh-4rem)] bg-slate-100 p-4 sm:p-6 lg:p-8">
+    <main className="min-h-[calc(100vh-4rem)] bg-[#0a0a0a] p-4 sm:p-6 lg:p-8">
       <div className="mx-auto max-w-7xl space-y-6">
-        <section className="">
-          <p className="text-sm font-medium text-blue-700">Admin Profile</p>
-          <h1 className="mt-2 text-3xl font-bold text-slate-900">
+        <section>
+          <p className="text-sm font-medium text-[#18ffbe]">Admin Profile</p>
+          <h1 className="mt-2 text-3xl font-bold text-white">
             User Management
           </h1>
-          <p className="mt-2 text-sm text-slate-500">
+          <p className="mt-2 text-sm text-white/40">
             Manage system users, change roles, and control access status.
           </p>
           {pageError ? (
-            <p className="mt-4 text-sm text-red-600">{pageError}</p>
+            <p className="mt-4 text-sm text-red-400">{pageError}</p>
           ) : null}
         </section>
 
         <section className="grid gap-6 lg:grid-cols-[360px_1fr]">
-          <div className="rounded-2xl bg-white border border-slate-200 shadow-sm p-6">
-            <h2 className="text-lg font-semibold text-slate-900">
+          {/* Create user form */}
+          <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur-sm">
+            <h2 className="text-lg font-semibold text-white/80">
               Create User
             </h2>
             <form className="mt-5 space-y-4" onSubmit={handleCreateUser}>
               <div>
-                <label className="mb-2 block text-sm font-medium text-slate-700">
+                <label className="mb-2 block text-sm font-medium text-white/50">
                   Username
                 </label>
                 <input
                   type="text"
                   value={username}
                   onChange={(event) => setUsername(event.target.value)}
-                  className="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  className={inputClass}
                   placeholder="Enter username"
                   required
                 />
               </div>
               <div>
-                <label className="mb-2 block text-sm font-medium text-slate-700">
+                <label className="mb-2 block text-sm font-medium text-white/50">
                   Password
                 </label>
                 <input
                   type="password"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
-                  className="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  className={inputClass}
                   placeholder="Enter password"
                   required
                 />
               </div>
               <div>
-                <label className="mb-2 block text-sm font-medium text-slate-700">
+                <label className="mb-2 block text-sm font-medium text-white/50">
                   Role
                 </label>
                 <select
                   value={role}
                   onChange={(event) => setRole(event.target.value as UserRole)}
-                  className="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  className={selectClass}
                 >
                   {ROLE_OPTIONS.map((roleOption) => (
                     <option key={roleOption} value={roleOption}>
@@ -300,59 +307,60 @@ export default function UserProfilePage() {
                   ))}
                 </select>
               </div>
-              <label className="flex items-center gap-3 text-sm text-slate-700">
+              <label className="flex items-center gap-3 text-sm text-white/50">
                 <input
                   type="checkbox"
                   checked={isActive}
                   onChange={(event) => setIsActive(event.target.checked)}
-                  className="size-4 rounded border-slate-300"
+                  className="size-4 rounded border-white/20 accent-[#18ffbe]"
                 />
                 Active user
               </label>
               {formError ? (
-                <p className="text-sm text-red-600">{formError}</p>
+                <p className="text-sm text-red-400">{formError}</p>
               ) : null}
               {formSuccess ? (
-                <p className="text-sm text-green-600">{formSuccess}</p>
+                <p className="text-sm text-[#18ffbe]">{formSuccess}</p>
               ) : null}
               <button
                 type="submit"
                 disabled={isCreating}
-                className="w-full rounded-lg bg-blue-700 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-blue-800 disabled:bg-blue-400"
+                className="w-full rounded-lg bg-[#18ffbe] px-4 py-3 text-sm font-medium text-black transition-colors hover:bg-[#18ffbe]/90 disabled:opacity-50"
               >
                 {isCreating ? "Creating..." : "Create User"}
               </button>
             </form>
           </div>
 
-          <div className="rounded-2xl bg-white border border-slate-200 shadow-sm overflow-hidden">
-            <div className="border-b border-slate-200 px-6 py-4">
-              <h2 className="text-lg font-semibold text-slate-900">
+          {/* Users table */}
+          <div className="rounded-2xl border border-white/10 bg-white/[0.04] overflow-hidden backdrop-blur-sm">
+            <div className="border-b border-white/[0.06] px-6 py-4">
+              <h2 className="text-lg font-semibold text-white/80">
                 All Users
               </h2>
             </div>
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-slate-200">
-                <thead className="bg-slate-50">
+              <table className="min-w-full divide-y divide-white/[0.06]">
+                <thead className="bg-white/[0.02]">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-white/40">
                       Username
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-white/40">
                       Role
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-white/40">
                       Status
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-white/40">
                       Actions
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 bg-white">
+                <tbody className="divide-y divide-white/[0.04]">
                   {users.map((user) => (
-                    <tr key={user.id}>
-                      <td className="px-6 py-4 text-sm font-medium text-slate-900">
+                    <tr key={user.id} className="hover:bg-white/[0.02]">
+                      <td className="px-6 py-4 text-sm font-medium text-white/80">
                         {user.username}
                       </td>
                       <td className="px-6 py-4">
@@ -365,7 +373,7 @@ export default function UserProfilePage() {
                               event.target.value as UserRole
                             )
                           }
-                          className="rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                          className="rounded-lg border border-white/10 bg-[#111111] px-3 py-2 text-sm text-white/80 focus:outline-none focus:ring-1 focus:ring-[#18ffbe]/30 disabled:opacity-50 [&>option]:bg-[#111111] [&>option]:text-white/80"
                         >
                           {ROLE_OPTIONS.map((roleOption) => (
                             <option key={roleOption} value={roleOption}>
@@ -378,8 +386,8 @@ export default function UserProfilePage() {
                         <span
                           className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
                             user.is_active
-                              ? "bg-emerald-100 text-emerald-700"
-                              : "bg-slate-200 text-slate-600"
+                              ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                              : "bg-white/[0.06] text-white/40 border border-white/10"
                           }`}
                         >
                           {user.is_active ? "Active" : "Inactive"}
@@ -392,7 +400,7 @@ export default function UserProfilePage() {
                           onClick={() =>
                             handleStatusToggle(user.id, !user.is_active)
                           }
-                          className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 disabled:opacity-60"
+                          className="rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-sm font-medium text-white/60 transition-colors hover:bg-white/[0.08] hover:text-white/80 disabled:opacity-50"
                         >
                           {user.is_active ? "Deactivate" : "Activate"}
                         </button>
@@ -403,7 +411,7 @@ export default function UserProfilePage() {
                     <tr>
                       <td
                         colSpan={4}
-                        className="px-6 py-10 text-center text-sm text-slate-500"
+                        className="px-6 py-10 text-center text-sm text-white/30"
                       >
                         No users found.
                       </td>

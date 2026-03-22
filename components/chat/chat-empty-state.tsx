@@ -13,15 +13,15 @@ type Props = {
 export default function ChatEmptyState({ selectedCam, cameras, onSend }: Props) {
   return (
     <div className="flex flex-col items-center justify-center h-full text-center py-20">
-      <div className="size-16 rounded-2xl bg-slate-900 flex items-center justify-center mb-4 shadow-lg">
-        <Bot className="size-8 text-white" />
+      <div className="size-16 rounded-2xl bg-[#18ffbe]/10 border border-[#18ffbe]/20 flex items-center justify-center mb-4">
+        <Bot className="size-8 text-[#18ffbe]" />
       </div>
-      <h2 className="text-xl font-bold text-slate-800 mb-1">ArgusV Security AI</h2>
-      <p className="text-sm text-slate-400 mb-8 max-w-sm">
+      <h2 className="text-xl font-bold text-white mb-1">ArgusV Security AI</h2>
+      <p className="text-sm text-white/40 mb-8 max-w-sm">
         Ask anything about your camera footage. Answers are grounded in real VLM-analysed detections.
       </p>
 
-      <div className="mb-6 px-3 py-1.5 rounded-full bg-slate-100 text-xs text-slate-500 flex items-center gap-1.5">
+      <div className="mb-6 px-3 py-1.5 rounded-full bg-white/[0.06] border border-white/10 text-xs text-white/40 flex items-center gap-1.5">
         <Camera className="size-3" />
         {selectedCam === "all"
           ? "Searching across all cameras"
@@ -34,9 +34,9 @@ export default function ChatEmptyState({ selectedCam, cameras, onSend }: Props) 
             key={s}
             type="button"
             onClick={() => onSend(s)}
-            className="text-left text-sm text-slate-600 bg-white border border-slate-200 rounded-xl px-4 py-3 hover:border-violet-300 hover:bg-violet-50 hover:text-violet-700 transition-colors flex items-start gap-2 shadow-sm"
+            className="text-left text-sm text-white/50 bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-3 hover:border-[#18ffbe]/30 hover:bg-[#18ffbe]/[0.06] hover:text-white/80 transition-colors flex items-start gap-2"
           >
-            <ChevronRight className="size-3.5 shrink-0 mt-0.5 text-slate-400" />
+            <ChevronRight className="size-3.5 shrink-0 mt-0.5 text-white/20" />
             {s}
           </button>
         ))}

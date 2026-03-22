@@ -16,11 +16,18 @@ type MainCameraGridClientProps = {
   cameras: CameraGridItem[];
 };
 
-const WS_URL =
+const WS_BASE =
   (process.env.NEXT_PUBLIC_BASE_URL ?? "http://127.0.0.1:8000").replace(
     /^http/,
     "ws",
   ) + "/ws/alerts";
+
+function getWsUrl() {
+  const token = typeof window !== "undefined"
+    ? window.localStorage.getItem("argusv_access_token")
+    : null;
+  return token ? `${WS_BASE}?token=${encodeURIComponent(token)}` : WS_BASE;
+}
 
 const BBOX_TTL_MS = 3000;
 
@@ -49,7 +56,7 @@ export function MainCameraGridClient({ cameras }: MainCameraGridClientProps) {
 
     function connect() {
       if (cancelled) return;
-      const ws = new WebSocket(WS_URL);
+      const ws = new WebSocket(getWsUrl());
       wsRef.current = ws;
 
       ws.onmessage = (evt) => {
@@ -226,7 +233,7 @@ export function MainCameraGridClient({ cameras }: MainCameraGridClientProps) {
 
   return (
     <div className="mx-auto flex max-w-[1500px] flex-col gap-4">
-      <section className="mb-6 shrink-0 overflow-hidden rounded-[20px] border border-slate-200 bg-white shadow-[0_20px_60px_-40px_rgba(15,23,42,0.45)] sm:mb-8 sm:rounded-[28px]">
+      <section className="mb-6 shrink-0 overflow-hidden rounded-[20px] border border-white/[0.08] bg-white/[0.03] shadow-[0_20px_60px_-40px_rgba(0,0,0,0.8)] sm:mb-8 sm:rounded-[28px]">
         <div className="relative isolate aspect-[16/9] min-h-[220px] overflow-hidden bg-slate-950 sm:min-h-[320px] md:min-h-[380px] lg:min-h-[420px] lg:max-h-[calc(100vh-22rem)] xl:min-h-[560px] xl:max-h-none">
           {selectedCamera ? (
             selectedCamera.status.toLowerCase() === "online" ? (

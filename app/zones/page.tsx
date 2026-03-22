@@ -122,7 +122,7 @@ export default function ZonesPage() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-slate-50 text-slate-800 p-4 md:p-6 lg:p-8 overflow-y-auto font-sans">
+    <div className="min-h-[calc(100vh-4rem)] bg-[#0a0a0a] text-white p-4 md:p-6 lg:p-8 overflow-y-auto font-sans">
       <ZonesHeader />
 
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 lg:gap-8">
@@ -140,7 +140,7 @@ export default function ZonesPage() {
 
         <div className="xl:col-span-5 flex flex-col">
           <div className="mb-4">
-            <label className="block text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <label className="block text-xs font-semibold uppercase tracking-wide text-white/40">
               Camera Filter
               <select
                 value={cameraFilter}
@@ -150,7 +150,7 @@ export default function ZonesPage() {
                   loadZones(false, v);
                 }}
                 disabled={camerasLoading}
-                className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 disabled:opacity-50"
+                className="mt-1 w-full rounded-md border border-white/10 bg-white/[0.06] px-3 py-2 text-sm text-white/70 focus:outline-none focus:ring-2 focus:ring-[#18ffbe]/40 disabled:opacity-50"
               >
                 <option value="all">All cameras</option>
                 {cameras.map((c) => (

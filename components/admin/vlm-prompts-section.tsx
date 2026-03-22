@@ -10,13 +10,13 @@ const VLM_PROMPT_KEYS = [
     key: "vlm.analysis_prompt",
     label: "Full Analysis Prompt",
     hint: "Sent to the VLM for every detection frame. Available variables: {object_class}, {zone_name}, {dwell_sec}, {event_type}",
-    accent: "border-blue-100 bg-blue-50 text-blue-700",
+    accent: "border-blue-500/30 bg-blue-500/10 text-blue-400",
   },
   {
     key: "vlm.triage_prompt",
     label: "Triage Prompt",
     hint: "Cheap first-pass — model replies YES or NO. Full analysis only runs on YES. Same variables available.",
-    accent: "border-violet-100 bg-violet-50 text-violet-700",
+    accent: "border-violet-500/30 bg-violet-500/10 text-violet-400",
   },
 ] as const;
 
@@ -104,14 +104,14 @@ export function VlmPromptsSection() {
   return (
     <AdminSection
       title="VLM Prompt Templates"
-      icon={<MessageSquare className="size-4 text-indigo-500" />}
+      icon={<MessageSquare className="size-4 text-indigo-400" />}
       defaultOpen={false}
     >
       {errors._load && (
-        <p className="mb-3 text-sm text-red-600">{errors._load}</p>
+        <p className="mb-3 text-sm text-red-400">{errors._load}</p>
       )}
       {loading ? (
-        <p className="text-sm text-slate-400">Loading…</p>
+        <p className="text-sm text-white/40">Loading…</p>
       ) : (
         <div className="space-y-6">
           {VLM_PROMPT_KEYS.map(({ key, label, hint, accent }) => (
@@ -125,17 +125,17 @@ export function VlmPromptsSection() {
                     {key.split(".")[1]}
                   </span>
                   <div>
-                    <p className="text-sm font-semibold text-slate-800">
+                    <p className="text-sm font-semibold text-white/80">
                       {label}
                     </p>
-                    <p className="mt-0.5 text-[11px] text-slate-400">{hint}</p>
+                    <p className="mt-0.5 text-[11px] text-white/40">{hint}</p>
                   </div>
                 </div>
                 {drafts[key] !== undefined && (
                   <button
                     type="button"
                     onClick={() => handleReset(key)}
-                    className="flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-medium text-slate-400 transition-colors hover:bg-red-50 hover:text-red-500"
+                    className="flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-medium text-white/30 transition-colors hover:bg-red-500/10 hover:text-red-400"
                   >
                     <RotateCcw className="size-3" />
                     Reset
@@ -151,21 +151,21 @@ export function VlmPromptsSection() {
                   setDrafts((d) => ({ ...d, [key]: e.target.value }))
                 }
                 placeholder="Leave empty to use built-in default"
-                className="w-full resize-y rounded-xl border border-slate-200 bg-white px-3 py-2.5 font-mono text-sm text-slate-700 placeholder-slate-300 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full resize-y rounded-xl border border-white/10 bg-white/[0.06] px-3 py-2.5 font-mono text-sm text-white/70 placeholder-white/20 focus:outline-none focus:ring-1 focus:ring-[#18ffbe]/30"
               />
 
               {errors[key] && (
-                <p className="text-xs text-red-600">{errors[key]}</p>
+                <p className="text-xs text-red-400">{errors[key]}</p>
               )}
               {msgs[key] && (
-                <p className="text-xs text-green-600">{msgs[key]}</p>
+                <p className="text-xs text-[#18ffbe]">{msgs[key]}</p>
               )}
 
               <button
                 type="button"
                 onClick={() => handleSave(key)}
                 disabled={saving === key}
-                className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+                className="flex items-center gap-2 rounded-lg bg-[#18ffbe] px-4 py-2 text-sm font-medium text-black hover:bg-[#18ffbe]/90 disabled:opacity-50"
               >
                 <Save className="size-3.5" />
                 {saving === key ? "Saving…" : "Save Prompt"}

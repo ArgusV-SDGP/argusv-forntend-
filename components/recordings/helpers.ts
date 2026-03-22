@@ -27,10 +27,10 @@ export function posPercent(ts: Date, start: Date): number {
 }
 export function threatStyle(level: string, isThreat: boolean): ThreatStyle {
   if (isThreat || level === "HIGH")
-    return { bg: "bg-red-500", text: "text-red-700", badge: "bg-red-50 text-red-700 border-red-200", dot: "#ef4444", glow: "rgba(239,68,68,0.45)" };
+    return { bg: "bg-red-500", text: "text-red-400", badge: "bg-red-500/15 text-red-400 border-red-500/30", dot: "#f87171", glow: "rgba(239,68,68,0.45)" };
   if (level === "MEDIUM")
-    return { bg: "bg-amber-400", text: "text-amber-700", badge: "bg-amber-50 text-amber-700 border-amber-200", dot: "#f59e0b", glow: "rgba(245,158,11,0.45)" };
-  return { bg: "bg-slate-400", text: "text-slate-600", badge: "bg-slate-100 text-slate-600 border-slate-200", dot: "#94a3b8", glow: "rgba(148,163,184,0.45)" };
+    return { bg: "bg-amber-400", text: "text-amber-400", badge: "bg-amber-500/15 text-amber-400 border-amber-500/30", dot: "#fb923c", glow: "rgba(245,158,11,0.45)" };
+  return { bg: "bg-white/30", text: "text-white/40", badge: "bg-white/[0.06] text-white/40 border-white/10", dot: "#94a3b8", glow: "rgba(148,163,184,0.45)" };
 }
 export function computeSeekOffset(target: Date, segments: Segment[]): number {
   const sorted = [...segments].sort(

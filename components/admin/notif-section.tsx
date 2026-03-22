@@ -10,11 +10,20 @@ const SEVERITIES = ["LOW", "MEDIUM", "HIGH", "CRITICAL"];
 const CHANNELS = ["slack", "webhook", "mqtt", "webpush"];
 
 const SEVERITY_CLASSES: Record<string, string> = {
-  LOW: "border-yellow-200 bg-yellow-50 text-yellow-700",
-  MEDIUM: "border-orange-200 bg-orange-50 text-orange-700",
-  HIGH: "border-red-200 bg-red-50 text-red-700",
-  CRITICAL: "border-rose-300 bg-rose-100 text-rose-800",
+  LOW: "border-yellow-500/30 bg-yellow-500/10 text-yellow-400",
+  MEDIUM: "border-orange-500/30 bg-orange-500/10 text-orange-400",
+  HIGH: "border-red-500/30 bg-red-500/10 text-red-400",
+  CRITICAL: "border-rose-500/30 bg-rose-500/15 text-rose-400",
 };
+
+const inputClass =
+  "w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2 text-sm text-white/80 placeholder-white/20 focus:outline-none focus:ring-1 focus:ring-[#18ffbe]/30";
+
+const selectClass =
+  "w-full rounded-lg border border-white/10 bg-[#111111] px-3 py-2 text-sm text-white/80 focus:outline-none focus:ring-1 focus:ring-[#18ffbe]/30 [&>option]:bg-[#111111] [&>option]:text-white/80";
+
+const labelClass =
+  "text-[11px] font-semibold uppercase tracking-wide text-white/40";
 
 export function NotifSection() {
   const [rules, setRules] = useState<NotifRule[]>([]);
@@ -109,20 +118,20 @@ export function NotifSection() {
   return (
     <AdminSection
       title="Notification Rules"
-      icon={<Bell className="size-4 text-orange-500" />}
+      icon={<Bell className="size-4 text-orange-400" />}
       defaultOpen={false}
     >
       {loading ? (
-        <p className="text-sm text-slate-400">Loading…</p>
+        <p className="text-sm text-white/40">Loading…</p>
       ) : (
         <div className="space-y-3">
           {rules.length === 0 && (
-            <p className="text-sm italic text-slate-400">No rules configured.</p>
+            <p className="text-sm italic text-white/40">No rules configured.</p>
           )}
           {rules.map((rule) => (
             <div
               key={rule.id}
-              className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3"
+              className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3"
             >
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
@@ -133,15 +142,15 @@ export function NotifSection() {
                   >
                     {rule.severity}
                   </span>
-                  <span className="text-xs font-mono text-slate-600">
+                  <span className="text-xs font-mono text-white/50">
                     zone: {rule.zone_id}
                   </span>
-                  <span className="text-xs text-slate-500">
+                  <span className="text-xs text-white/40">
                     → {rule.channels.join(", ")}
                   </span>
                 </div>
                 {Object.keys(rule.config).length > 0 && (
-                  <p className="mt-1 text-[10px] font-mono text-slate-400">
+                  <p className="mt-1 text-[10px] font-mono text-white/30">
                     {JSON.stringify(rule.config)}
                   </p>
                 )}
@@ -149,7 +158,7 @@ export function NotifSection() {
               <button
                 type="button"
                 onClick={() => handleDelete(rule.id)}
-                className="shrink-0 rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-500"
+                className="shrink-0 rounded-lg p-1.5 text-white/30 transition-colors hover:bg-red-500/10 hover:text-red-400"
               >
                 <Trash2 className="size-4" />
               </button>
@@ -159,34 +168,30 @@ export function NotifSection() {
       )}
 
       {showAdd ? (
-        <div className="mt-4 space-y-4 border-t border-slate-100 pt-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+        <div className="mt-4 space-y-4 border-t border-white/[0.06] pt-4">
+          <p className="text-xs font-semibold uppercase tracking-wide text-white/40">
             New Rule
           </p>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="space-y-1">
-              <label className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                Zone ID
-              </label>
+              <label className={labelClass}>Zone ID</label>
               <input
                 value={form.zone_id}
                 onChange={(event) =>
                   setForm((current) => ({ ...current, zone_id: event.target.value }))
                 }
                 placeholder="global or zone UUID"
-                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-orange-400"
+                className={inputClass}
               />
             </div>
             <div className="space-y-1">
-              <label className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                Severity
-              </label>
+              <label className={labelClass}>Severity</label>
               <select
                 value={form.severity}
                 onChange={(event) =>
                   setForm((current) => ({ ...current, severity: event.target.value }))
                 }
-                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-orange-400"
+                className={selectClass}
               >
                 {SEVERITIES.map((severity) => (
                   <option key={severity} value={severity}>
@@ -197,9 +202,7 @@ export function NotifSection() {
             </div>
           </div>
           <div className="space-y-1.5">
-            <label className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-              Channels
-            </label>
+            <label className={labelClass}>Channels</label>
             <div className="flex flex-wrap gap-2">
               {CHANNELS.map((channel) => {
                 const active = form.channels.includes(channel);
@@ -211,8 +214,8 @@ export function NotifSection() {
                     onClick={() => toggleChannel(channel)}
                     className={`rounded-lg border px-3 py-1.5 text-xs font-semibold capitalize transition-colors ${
                       active
-                        ? "border-orange-500 bg-orange-500 text-white"
-                        : "border-slate-200 bg-white text-slate-500 hover:border-orange-300"
+                        ? "border-[#18ffbe]/30 bg-[#18ffbe]/10 text-[#18ffbe]"
+                        : "border-white/10 bg-white/[0.04] text-white/50 hover:border-white/20 hover:text-white/70"
                     }`}
                   >
                     {channel}
@@ -222,9 +225,7 @@ export function NotifSection() {
             </div>
           </div>
           <div className="space-y-1">
-            <label className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-              Extra Config (JSON)
-            </label>
+            <label className={labelClass}>Extra Config (JSON)</label>
             <textarea
               value={form.config}
               onChange={(event) =>
@@ -232,21 +233,21 @@ export function NotifSection() {
               }
               rows={2}
               placeholder='{"slack_channel": "#alerts"}'
-              className="w-full resize-none rounded-lg border border-slate-200 bg-white px-3 py-2 font-mono text-sm focus:outline-none focus:ring-1 focus:ring-orange-400"
+              className={`${inputClass} resize-none font-mono`}
             />
           </div>
           <div className="flex gap-3">
             <button
               type="button"
               onClick={handleAdd}
-              className="flex items-center gap-2 rounded-lg bg-orange-500 px-5 py-2 text-sm font-medium text-white hover:bg-orange-600"
+              className="flex items-center gap-2 rounded-lg bg-[#18ffbe] px-5 py-2 text-sm font-medium text-black hover:bg-[#18ffbe]/90"
             >
               <Plus className="size-4" /> Create Rule
             </button>
             <button
               type="button"
               onClick={() => setShowAdd(false)}
-              className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
+              className="rounded-lg border border-white/10 bg-white/[0.06] px-4 py-2 text-sm font-medium text-white/60 hover:bg-white/[0.1]"
             >
               Cancel
             </button>
@@ -256,13 +257,13 @@ export function NotifSection() {
         <button
           type="button"
           onClick={() => setShowAdd(true)}
-          className="mt-4 flex items-center gap-2 rounded-lg border border-dashed border-orange-200 px-4 py-2 text-sm font-medium text-orange-600 transition-colors hover:bg-orange-50"
+          className="mt-4 flex items-center gap-2 rounded-lg border border-dashed border-white/20 px-4 py-2 text-sm font-medium text-white/50 transition-colors hover:bg-white/[0.04] hover:text-white/70"
         >
           <Plus className="size-4" /> Add Rule
         </button>
       )}
 
-      {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
+      {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
     </AdminSection>
   );
 }

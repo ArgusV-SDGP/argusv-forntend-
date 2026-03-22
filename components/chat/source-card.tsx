@@ -14,22 +14,22 @@ export default function SourceCard({ clip }: { clip: SourceClip }) {
   const playlistSrc = clip.playlist_url ? `${API_BASE_URL}${clip.playlist_url}` : null;
 
   return (
-    <div className="bg-white border border-slate-200 rounded-xl shadow-sm hover:border-slate-300 transition-colors overflow-hidden">
+    <div className="border border-white/[0.08] bg-white/[0.04] rounded-xl hover:border-white/[0.14] transition-colors overflow-hidden">
 
       {/* Video / Thumbnail area */}
-      <div className="relative w-full h-32 bg-slate-900">
+      <div className="relative w-full h-32 bg-black">
         {showVideo && playlistSrc ? (
           <MiniPlayer src={playlistSrc} />
         ) : clip.thumbnail_url ? (
           <img
             src={`${API_BASE_URL}${clip.thumbnail_url}`}
             alt="Detection snapshot"
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover opacity-80"
             onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
-            <Camera className="size-7 text-slate-600" />
+            <Camera className="size-7 text-white/20" />
           </div>
         )}
 
@@ -37,10 +37,10 @@ export default function SourceCard({ clip }: { clip: SourceClip }) {
           <button
             type="button"
             onClick={() => setShowVideo(true)}
-            className="absolute inset-0 flex items-center justify-center bg-black/40 hover:bg-black/50 transition-colors group"
+            className="absolute inset-0 flex items-center justify-center bg-black/50 hover:bg-black/60 transition-colors group"
           >
-            <div className="size-10 rounded-full bg-white/90 flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
-              <Play className="size-4 text-slate-800 ml-0.5" />
+            <div className="size-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform backdrop-blur-sm">
+              <Play className="size-4 text-white ml-0.5" />
             </div>
           </button>
         )}
@@ -57,11 +57,11 @@ export default function SourceCard({ clip }: { clip: SourceClip }) {
 
       <div className="p-3">
         <div className="flex items-center gap-2 flex-wrap mb-1">
-          <span className="text-xs font-semibold text-slate-700 flex items-center gap-1">
+          <span className="text-xs font-semibold text-white/60 flex items-center gap-1">
             <Camera className="size-3" />{clip.camera_id}
           </span>
           {clip.zone_name && (
-            <span className="text-xs text-slate-500 flex items-center gap-1">
+            <span className="text-xs text-white/40 flex items-center gap-1">
               <MapPin className="size-3" />{clip.zone_name}
             </span>
           )}
@@ -73,14 +73,14 @@ export default function SourceCard({ clip }: { clip: SourceClip }) {
           <span className={`text-[10px] font-medium ml-auto ${rel.color}`}>{rel.label}</span>
         </div>
 
-        <p className="text-[10px] text-slate-400 mb-1">{formatTs(clip.timestamp)}</p>
+        <p className="text-[10px] text-white/25 mb-1">{formatTs(clip.timestamp)}</p>
 
         {clip.vlm_summary && (
-          <p className="text-xs text-slate-600 leading-snug line-clamp-2">{clip.vlm_summary}</p>
+          <p className="text-xs text-white/40 leading-snug line-clamp-2">{clip.vlm_summary}</p>
         )}
 
         {clip.incident_id ? (
-          <p className="mt-1.5 text-[10px] font-medium text-slate-500">
+          <p className="mt-1.5 text-[10px] font-medium text-white/30">
             Incident ID: {clip.incident_id}
           </p>
         ) : null}

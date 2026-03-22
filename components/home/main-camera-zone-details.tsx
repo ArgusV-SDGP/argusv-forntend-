@@ -50,43 +50,43 @@ export function MainCameraZoneDetails({
   onToggleSelectAll,
 }: MainCameraZoneDetailsProps) {
   return (
-    <section className="min-h-0 overflow-hidden rounded-[20px] border border-slate-200 bg-[linear-gradient(180deg,rgba(255,255,255,1)_0%,rgba(248,250,252,0.92)_100%)] shadow-[0_20px_60px_-40px_rgba(15,23,42,0.25)] sm:rounded-[28px]">
+    <section className="min-h-0 overflow-hidden rounded-[20px] border border-white/[0.08] bg-white/[0.03] sm:rounded-[28px]">
       <div className="flex h-full min-h-0 flex-col p-4 sm:p-6">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
           <div className="min-w-0">
-            <p className="text-lg font-semibold text-slate-900">Zone Details</p>
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="text-lg font-semibold text-white">Zone Details</p>
+            <p className="mt-1 text-sm text-white/40">
               Assigned zones and metadata now sit directly under the live stream for quicker
               inspection.
             </p>
           </div>
 
           <div className="flex flex-wrap gap-2 text-xs font-semibold">
-            <span className="max-w-full truncate rounded-full bg-slate-900 px-3 py-1.5 text-white">
+            <span className="max-w-full truncate rounded-full bg-white/[0.08] px-3 py-1.5 text-white/80">
               {selectedCameraName ?? "No camera selected"}
             </span>
-            <span className="rounded-full bg-sky-100 px-3 py-1.5 text-sky-700">
+            <span className="rounded-full bg-[#18ffbe]/10 px-3 py-1.5 text-[#18ffbe]">
               {viewMode === "with_zones" ? "Overlay enabled" : "Overlay hidden"}
             </span>
-            <span className="rounded-full bg-slate-200 px-3 py-1.5 text-slate-700">
+            <span className="rounded-full bg-white/[0.06] px-3 py-1.5 text-white/50">
               {visibleZones.length} visible
             </span>
           </div>
         </div>
 
         <div className="mt-5 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-          <div className="rounded-[20px] border border-slate-200 bg-slate-900 px-4 py-3 text-white shadow-sm sm:rounded-[24px]">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/60">
+          <div className="rounded-[20px] border border-white/[0.08] bg-white/[0.06] px-4 py-3 text-white sm:rounded-[24px]">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/40">
               Zone Visibility
             </p>
-            <p className="mt-1 text-sm font-semibold">
+            <p className="mt-1 text-sm font-semibold text-white/80">
               {viewMode === "with_zones"
                 ? `${visibleZones.length} of ${zoneCount} assigned zone${zoneCount === 1 ? "" : "s"} on screen`
                 : "Zone overlay hidden"}
             </p>
           </div>
 
-          <div className="w-fit max-w-full rounded-full bg-slate-200 px-4 py-2 text-xs font-medium text-slate-700">
+          <div className="w-fit max-w-full rounded-full bg-white/[0.06] px-4 py-2 text-xs font-medium text-white/40">
             {zoneCount > 0
               ? `${zoneCount} zone${zoneCount === 1 ? "" : "s"} available`
               : "No assigned zones"}
@@ -94,27 +94,27 @@ export function MainCameraZoneDetails({
         </div>
 
         {viewMode === "with_zones" ? (
-          <div className="mt-5 rounded-[20px] border border-slate-200 bg-white/80 p-4 shadow-sm sm:rounded-[24px]">
+          <div className="mt-5 rounded-[20px] border border-white/[0.06] bg-white/[0.03] p-4 sm:rounded-[24px]">
             {zoneCount > 0 ? (
               <>
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                   <div className="min-w-0">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/40">
                       Zone Configuration
                     </p>
-                    <p className="mt-1 text-sm text-slate-600">
+                    <p className="mt-1 text-sm text-white/50">
                       Select the zones that should appear over the video.
                     </p>
                   </div>
                   <button
                     type="button"
                     onClick={onToggleSelectAll}
-                    className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-slate-950 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800 sm:w-fit"
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-sm font-medium text-white/70 transition hover:bg-white/[0.10] hover:text-white sm:w-fit"
                   >
                     {allZonesSelected ? (
-                      <CheckSquare className="size-4 text-emerald-300" />
+                      <CheckSquare className="size-4 text-[#18ffbe]" />
                     ) : (
-                      <Square className="size-4 text-white/75" />
+                      <Square className="size-4 text-white/40" />
                     )}
                     {allZonesSelected ? "Clear visible zones" : "Show all zones"}
                   </button>
@@ -131,14 +131,14 @@ export function MainCameraZoneDetails({
                           onClick={() => onToggleZone(zone.zone_id)}
                           className={`inline-flex max-w-full items-center gap-2 rounded-full border px-3 py-2 text-left text-sm font-medium transition ${
                             checked
-                              ? "border-sky-300 bg-sky-50 text-sky-900"
-                              : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-slate-900"
+                              ? "border-[#18ffbe]/40 bg-[#18ffbe]/10 text-[#18ffbe]"
+                              : "border-white/10 bg-white/[0.04] text-white/50 hover:border-white/20 hover:text-white/80"
                           }`}
                         >
                           {checked ? (
-                            <CheckSquare className="size-4 text-sky-600" />
+                            <CheckSquare className="size-4 text-[#18ffbe]" />
                           ) : (
-                            <Square className="size-4 text-slate-400" />
+                            <Square className="size-4 text-white/30" />
                           )}
                           <span className="truncate">{zone.name || zone.zone_id}</span>
                         </button>
@@ -148,16 +148,16 @@ export function MainCameraZoneDetails({
                 </div>
               </>
             ) : !zonesLoading && !zonesError ? (
-              <p className="text-sm text-slate-500">No zones assigned to this camera.</p>
+              <p className="text-sm text-white/40">No zones assigned to this camera.</p>
             ) : null}
           </div>
         ) : null}
 
         <div className="mt-5">
-          {zonesLoading ? <p className="text-sm text-slate-500">Loading zones...</p> : null}
+          {zonesLoading ? <p className="text-sm text-white/40">Loading zones...</p> : null}
 
           {zonesError ? (
-            <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
+            <div className="rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-400">
               <div className="flex items-start gap-2">
                 <AlertCircle className="mt-0.5 size-4" />
                 <span>{zonesError}</span>
@@ -166,11 +166,11 @@ export function MainCameraZoneDetails({
           ) : null}
 
           {!zonesLoading && !zonesError && zoneCount === 0 && viewMode !== "with_zones" ? (
-            <p className="text-sm text-slate-500">No zones assigned to this camera.</p>
+            <p className="text-sm text-white/40">No zones assigned to this camera.</p>
           ) : null}
 
           {!zonesLoading && !zonesError && viewMode === "without_zones" ? (
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+            <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] p-4 text-sm text-white/40">
               Zone overlays are currently hidden. Use the checkbox in the video configuration panel
               to enable them.
             </div>
@@ -181,7 +181,7 @@ export function MainCameraZoneDetails({
           viewMode === "with_zones" &&
           zoneCount > 0 &&
           visibleZones.length === 0 ? (
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+            <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] p-4 text-sm text-white/40">
               No zones are currently selected. Choose one or more zones from the configuration
               section under the video.
             </div>
@@ -193,45 +193,45 @@ export function MainCameraZoneDetails({
                 {visibleZones.map((zone) => (
                   <article
                     key={zone.zone_id}
-                    className="rounded-[20px] border border-slate-200 bg-white p-4 shadow-sm sm:rounded-[24px]"
+                    className="rounded-[20px] border border-white/[0.08] bg-white/[0.04] p-4 sm:rounded-[24px]"
                   >
                     <div className="flex items-center justify-between gap-2">
-                      <p className="truncate text-sm font-semibold text-slate-900">
+                      <p className="truncate text-sm font-semibold text-white/90">
                         {zone.name || "Unnamed Zone"}
                       </p>
                       <span
                         className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${
                           zone.active
-                            ? "bg-emerald-100 text-emerald-700"
-                            : "bg-slate-200 text-slate-600"
+                            ? "bg-emerald-500/15 text-emerald-400"
+                            : "bg-white/[0.06] text-white/40"
                         }`}
                       >
                         {zone.active ? "Active" : "Inactive"}
                       </span>
                     </div>
-                    <dl className="mt-4 space-y-2 text-sm text-slate-600">
+                    <dl className="mt-4 space-y-2 text-sm text-white/50">
                       <div className="flex justify-between gap-3">
-                        <dt className="font-medium text-slate-500">Type</dt>
+                        <dt className="font-medium text-white/30">Type</dt>
                         <dd className="text-right">{zone.zone_type ?? "N/A"}</dd>
                       </div>
                       <div className="flex justify-between gap-3">
-                        <dt className="font-medium text-slate-500">Dwell Threshold</dt>
+                        <dt className="font-medium text-white/30">Dwell Threshold</dt>
                         <dd className="text-right">{zone.dwell_threshold_sec ?? "N/A"} sec</dd>
                       </div>
                       <div className="flex justify-between gap-3">
-                        <dt className="font-medium text-slate-500">Rule Count</dt>
+                        <dt className="font-medium text-white/30">Rule Count</dt>
                         <dd className="text-right">{zone.rule_count ?? 0}</dd>
                       </div>
                       <div>
-                        <dt className="font-medium text-slate-500">Zone ID</dt>
+                        <dt className="font-medium text-white/30">Zone ID</dt>
                         <dd className="mt-1 break-all">{zone.zone_id}</dd>
                       </div>
                       <div>
-                        <dt className="font-medium text-slate-500">Camera ID</dt>
+                        <dt className="font-medium text-white/30">Camera ID</dt>
                         <dd className="mt-1 break-all">{zone.camera_id ?? selectedCameraId}</dd>
                       </div>
                       <div>
-                        <dt className="font-medium text-slate-500">
+                        <dt className="font-medium text-white/30">
                           BBox ({zoneData?.frame?.width && zoneData?.frame?.height ? "px" : "norm"})
                         </dt>
                         <dd className="mt-1 break-words">{formatBBox(zone, zoneData?.frame)}</dd>
