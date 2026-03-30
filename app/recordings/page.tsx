@@ -105,21 +105,41 @@ export default function RecordingsPage() {
         </div>
 
         {/* Camera selector */}
-        <div className="ml-auto flex items-center gap-2">
-          <Camera className="size-4 text-white/30 shrink-0" />
-          {loadingCams ? (
-            <div className="h-9 w-40 bg-white/[0.08] animate-pulse rounded-lg" />
-          ) : (
-            <select
-              value={selectedCamId}
-              onChange={(e) => setSelectedCamId(e.target.value)}
-              className="bg-white/[0.06] border border-white/10 rounded-lg px-3 py-2 text-sm text-white/70 focus:outline-none focus:ring-2 focus:ring-[#18ffbe]/30"
-            >
-              {cameras.map((c) => (
-                <option key={c.camera_id} value={c.camera_id}>{c.name} ({c.camera_id})</option>
-              ))}
-            </select>
-          )}
+        <div className="ml-auto w-full max-w-xs">
+          <div className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2">
+            <div className="mb-1.5 flex items-center justify-between">
+              <span className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide text-white/45">
+                <Camera className="size-3.5 shrink-0" />
+                Camera Source
+              </span>
+              {!loadingCams && cameras.length > 0 && (
+                <span className="text-[10px] text-white/35">{cameras.length} cams</span>
+              )}
+            </div>
+
+            {loadingCams ? (
+              <div className="h-9 w-full bg-white/[0.08] animate-pulse rounded-lg" />
+            ) : (
+              <div className="relative">
+                <select
+                  aria-label="Select camera"
+                  value={selectedCamId}
+                  onChange={(e) => setSelectedCamId(e.target.value)}
+                  disabled={cameras.length === 0}
+                  className="w-full appearance-none bg-white/[0.06] border border-white/10 rounded-lg px-3 py-2 pr-9 text-sm text-white/75 focus:outline-none focus:ring-2 focus:ring-[#18ffbe]/30 disabled:cursor-not-allowed disabled:text-white/35"
+                >
+                  {cameras.length === 0 ? (
+                    <option value="">No cameras available</option>
+                  ) : (
+                    cameras.map((c) => (
+                      <option key={c.camera_id} value={c.camera_id}>{c.name} ({c.camera_id})</option>
+                    ))
+                  )}
+                </select>
+                <ChevronRight className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 rotate-90 text-white/35" />
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -132,12 +152,12 @@ export default function RecordingsPage() {
   
 
       {/* ── Player + Events ── */}
-      <div className="flex flex-col lg:flex-row gap-5">
+      <div className="flex flex-col lg:flex-row gap-6 items-start">
 
         {/* Player */}
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 space-y-5">
           {playlistUrl ? (
-            <div className="border border-white/[0.08] bg-white/[0.03] rounded-2xl overflow-hidden">
+            <div className="border border-white/[0.08] bg-white/[0.03] rounded-2xl overflow-hidden shadow-[0_0_0_1px_rgba(255,255,255,0.02)]">
               <DayPlayer
                 key={playlistUrl}
                 playlistUrl={playlistUrl}
@@ -146,29 +166,33 @@ export default function RecordingsPage() {
                 onBboxExpire={() => setBboxMarker(null)}
               />
               {/* Player footer */}
-              <div className="px-4 py-2.5 flex items-center gap-4 text-xs text-white/40 border-t border-white/[0.06] bg-white/[0.02]">
-                <span className="font-semibold text-white/70">{formatDateLabel(selectedDay)}</span>
+              <div className="px-4 py-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs border-t border-white/[0.06] bg-gradient-to-r from-white/[0.02] to-white/[0.03] text-white/45">
+                <span className="font-semibold text-white/75">{formatDateLabel(selectedDay)}</span>
                 <span>{segments.length} segment{segments.length !== 1 ? "s" : ""} stitched</span>
-                <span className="flex items-center gap-1">
-                  <div className="size-1.5 rounded-full bg-[#18ffbe]" />{formatDuration(totalDuration)}
+                <span className="flex items-center gap-1.5 text-white/60">
+                  <Clock className="size-3.5" />
+                  {formatDuration(totalDuration)}
                 </span>
                 {bboxMarker ? (
                   <span
-                    className="ml-auto flex items-center gap-1.5 font-semibold text-xs animate-pulse"
-                    style={{ color: bboxMarker.is_threat ? "#f87171" : bboxMarker.threat_level === "MEDIUM" ? "#fb923c" : "#94a3b8" }}
+                    className="ml-auto inline-flex items-center gap-1.5 font-semibold text-[11px] px-2.5 py-1 rounded-full animate-pulse"
+                    style={{
+                      color: bboxMarker.is_threat ? "#f87171" : bboxMarker.threat_level === "MEDIUM" ? "#fb923c" : "#94a3b8",
+                      background: bboxMarker.is_threat ? "rgba(248,113,113,0.08)" : bboxMarker.threat_level === "MEDIUM" ? "rgba(251,146,60,0.08)" : "rgba(148,163,184,0.08)",
+                    }}
                   >
                     <div className="size-1.5 rounded-full" style={{ background: bboxMarker.is_threat ? "#f87171" : bboxMarker.threat_level === "MEDIUM" ? "#fb923c" : "#94a3b8" }} />
                     {bboxMarker.object_class} · {bboxMarker.threat_level}
                   </span>
                 ) : (
                   <span className="ml-auto text-white/25 text-[10px]">
-                    Click timeline or event to jump + show bbox
+                    Click timeline or event to jump and show bbox
                   </span>
                 )}
               </div>
             </div>
           ) : (
-            <div className="border border-white/[0.08] bg-white/[0.03] rounded-2xl overflow-hidden">
+            <div className="border border-white/[0.08] bg-white/[0.03] rounded-2xl overflow-hidden shadow-[0_0_0_1px_rgba(255,255,255,0.02)]">
               {/* Skeleton video area */}
               <div className="relative w-full aspect-video bg-black flex flex-col items-center justify-center gap-3">
                 {loadingDay ? (
@@ -183,18 +207,18 @@ export default function RecordingsPage() {
                   </>
                 ) : (
                   <>
-                    <div className="relative size-14 rounded-full bg-white/[0.04] flex items-center justify-center">
+                    <div className="relative size-14 rounded-full bg-white/[0.04] ring-1 ring-white/10 flex items-center justify-center">
                       <Film className="size-7 text-white/20 opacity-60" />
                     </div>
-                    <div className="relative text-center">
-                      <p className="text-sm font-medium text-white/40">No recordings for this day</p>
+                    <div className="relative text-center px-4">
+                      <p className="text-sm font-medium text-white/45">No recordings for this day</p>
                       <p className="text-xs mt-1 text-white/25">Set RECORDINGS_ENABLED=true in .env</p>
                     </div>
                   </>
                 )}
               </div>
               {/* Skeleton footer */}
-              <div className="px-4 py-2.5 flex items-center gap-4 border-t border-white/[0.06] bg-white/[0.02]">
+              <div className="px-4 py-3 flex items-center gap-4 border-t border-white/[0.06] bg-gradient-to-r from-white/[0.02] to-white/[0.03]">
                 <div className="h-3 w-16 bg-white/[0.08] animate-pulse rounded" />
                 <div className="h-3 w-24 bg-white/[0.06] animate-pulse rounded" />
                 <div className="h-3 w-14 bg-white/[0.06] animate-pulse rounded" />
@@ -203,101 +227,128 @@ export default function RecordingsPage() {
             </div>
           )}
 
-                      {/* ── Day nav + 24h bar ── */}
-      <div className="border border-white/[0.08] bg-white/[0.03] rounded-2xl p-5 mt-5">
+          {/* ── Day nav + 24h bar ── */}
+          <div className="border border-white/[0.08] bg-white/[0.03] rounded-2xl p-4 md:p-5">
 
-        {/* Date row */}
-        <div className="flex items-center gap-3 mb-5">
-          <button onClick={() => navigateDay(-1)}
-            className="p-1.5 rounded-lg hover:bg-white/[0.06] text-white/40 hover:text-white transition-colors border border-white/10">
-            <ChevronLeft className="size-4" />
-          </button>
+            {/* Date row */}
+            <div className="flex flex-col lg:flex-row lg:items-center gap-3 mb-5">
+              <div className="flex items-center gap-2.5">
+                <button
+                  onClick={() => navigateDay(-1)}
+                  aria-label="Previous day"
+                  className="p-1.5 rounded-lg hover:bg-white/[0.06] text-white/40 hover:text-white transition-colors border border-white/10"
+                >
+                  <ChevronLeft className="size-4" />
+                </button>
 
-          <div className="flex items-center gap-2">
-            <Calendar className="size-4 text-[#18ffbe]" />
-            <span className="text-sm font-bold text-white/90">{formatDateLabel(selectedDay)}</span>
-            <span className="text-xs text-white/30">
-              {selectedDay.toLocaleDateString([], { month: "long", day: "numeric", year: "numeric" })}
-            </span>
-          </div>
+                <button
+                  onClick={() => navigateDay(1)}
+                  aria-label="Next day"
+                  disabled={selectedDay.getTime() >= dayStart(new Date()).getTime()}
+                  className="p-1.5 rounded-lg hover:bg-white/[0.06] text-white/40 hover:text-white transition-colors border border-white/10 disabled:opacity-30"
+                >
+                  <ChevronRight className="size-4" />
+                </button>
 
-          <button onClick={() => navigateDay(1)}
-            disabled={selectedDay.getTime() >= dayStart(new Date()).getTime()}
-            className="p-1.5 rounded-lg hover:bg-white/[0.06] text-white/40 hover:text-white transition-colors border border-white/10 disabled:opacity-30">
-            <ChevronRight className="size-4" />
-          </button>
+                <button
+                  onClick={loadDay}
+                  aria-label="Reload day"
+                  disabled={loadingDay}
+                  className="p-1.5 rounded-lg hover:bg-white/[0.06] text-white/40 hover:text-white transition-colors border border-white/10 disabled:opacity-50"
+                >
+                  <RefreshCw className={`size-4 ${loadingDay ? "animate-spin" : ""}`} />
+                </button>
+              </div>
 
-          <button onClick={loadDay} disabled={loadingDay}
-            className="p-1.5 rounded-lg hover:bg-white/[0.06] text-white/40 hover:text-white transition-colors border border-white/10 disabled:opacity-50">
-            <RefreshCw className={`size-4 ${loadingDay ? "animate-spin" : ""}`} />
-          </button>
-
-          {/* Stats */}
-          <div className="ml-auto flex items-center gap-5 text-xs">
-            {loadingDay ? (
-              <span className="text-white/30 animate-pulse">Loading…</span>
-            ) : (
-              <>
-                <span className="flex items-center gap-1.5 text-white/40">
-                  <div className="size-2 rounded-full bg-[#18ffbe]" />
-                  {formatDuration(totalDuration)} recorded
+              <div className="flex items-center gap-2 min-w-0">
+                <Calendar className="size-4 text-[#18ffbe] shrink-0" />
+                <span className="text-sm font-bold text-white/90 truncate">{formatDateLabel(selectedDay)}</span>
+                <span className="text-xs text-white/30 truncate">
+                  {selectedDay.toLocaleDateString([], { month: "long", day: "numeric", year: "numeric" })}
                 </span>
-                <span className="flex items-center gap-1.5 text-white/40">
-                  <div className="size-2 rounded-full bg-amber-400" />
-                  {markers.length} event{markers.length !== 1 ? "s" : ""}
-                </span>
-                {threatCount > 0 && (
-                  <span className="flex items-center gap-1.5 text-red-400 font-semibold">
-                    <Zap className="size-3.5" />
-                    {threatCount} threat{threatCount !== 1 ? "s" : ""}
-                  </span>
+              </div>
+
+              {/* Stats */}
+              <div className="flex flex-wrap items-center gap-2 text-xs lg:ml-auto">
+                {loadingDay ? (
+                  <span className="text-white/30 animate-pulse">Loading...</span>
+                ) : (
+                  <>
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 text-white/55">
+                      <Clock className="size-3.5 text-[#18ffbe]" />
+                      {formatDuration(totalDuration)} recorded
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 text-white/55">
+                      <div className="size-2 rounded-full bg-amber-400" />
+                      {markers.length} event{markers.length !== 1 ? "s" : ""}
+                    </span>
+                    {threatCount > 0 && (
+                      <span className="inline-flex items-center gap-1.5 rounded-full border border-red-500/30 bg-red-500/10 px-2.5 py-1 text-red-400 font-semibold">
+                        <Zap className="size-3.5" />
+                        {threatCount} threat{threatCount !== 1 ? "s" : ""}
+                      </span>
+                    )}
+                  </>
                 )}
-              </>
+              </div>
+            </div>
+
+            {loadingDay ? (
+              <div className="space-y-1.5">
+                <div className="h-9 bg-white/[0.06] animate-pulse rounded-lg" />
+                <div className="h-2 bg-white/[0.04] animate-pulse rounded" />
+                <div className="h-4" />
+              </div>
+            ) : (
+              <DayBar
+                dayDate={selectedDay}
+                segments={segments}
+                markers={markers}
+                onSeek={(ts) => {
+                  setSeekTo(computeSeekOffset(ts, segments));
+                  setBboxMarker(null);
+                }}
+              />
             )}
           </div>
         </div>
 
-        {loadingDay ? (
-          <div className="space-y-1.5">
-            <div className="h-9 bg-white/[0.06] animate-pulse rounded-lg" />
-            <div className="h-2 bg-white/[0.04] animate-pulse rounded" />
-            <div className="h-4" />
-          </div>
-        ) : (
-          <DayBar dayDate={selectedDay} segments={segments} markers={markers}
-            onSeek={(ts) => { setSeekTo(computeSeekOffset(ts, segments)); setBboxMarker(null); }} />
-        )}
-      </div>
-        </div>
-
-
-
         {/* Events panel */}
-        <div className="lg:w-72 shrink-0 flex flex-col gap-3">
+        <div className="w-full lg:w-80 shrink-0 flex flex-col gap-3 lg:sticky lg:top-4">
 
           {/* Filter bar */}
           <div className="border border-white/[0.08] bg-white/[0.03] rounded-xl p-3">
             <p className="text-[10px] font-semibold text-white/30 uppercase tracking-wide mb-2">Filter Events</p>
             <div className="flex items-center gap-1.5 flex-wrap">
               {(["all", "HIGH", "MEDIUM", "LOW"] as FilterLevel[]).map((f) => (
-                <button key={f} type="button" onClick={() => setFilterLevel(f)}
+                <button
+                  key={f}
+                  type="button"
+                  onClick={() => setFilterLevel(f)}
                   className={`px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-colors ${
                     filterLevel === f
-                      ? f === "HIGH" ? "bg-red-500/20 text-red-400 border-red-500/40"
-                        : f === "MEDIUM" ? "bg-amber-500/20 text-amber-400 border-amber-500/40"
-                        : f === "LOW" ? "bg-white/10 text-white/60 border-white/20"
-                        : "bg-[#18ffbe]/10 text-[#18ffbe] border-[#18ffbe]/30"
+                      ? f === "HIGH"
+                        ? "bg-red-500/20 text-red-400 border-red-500/40"
+                        : f === "MEDIUM"
+                          ? "bg-amber-500/20 text-amber-400 border-amber-500/40"
+                          : f === "LOW"
+                            ? "bg-white/10 text-white/60 border-white/20"
+                            : "bg-[#18ffbe]/10 text-[#18ffbe] border-[#18ffbe]/30"
                       : "bg-white/[0.04] text-white/40 border-white/10 hover:border-white/20"
-                  }`}>
+                  }`}
+                >
                   {f === "all" ? "All" : f}
                 </button>
               ))}
-              <button type="button" onClick={() => setThreatsOnly((v) => !v)}
-                className={`ml-auto flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-colors ${
+              <button
+                type="button"
+                onClick={() => setThreatsOnly((v) => !v)}
+                className={`sm:ml-auto flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-colors ${
                   threatsOnly
                     ? "bg-red-500/15 text-red-400 border-red-500/30"
                     : "bg-white/[0.04] text-white/40 border-white/10 hover:border-white/20"
-                }`}>
+                }`}
+              >
                 <Shield className="size-3" /> Threats only
               </button>
             </div>
@@ -305,14 +356,14 @@ export default function RecordingsPage() {
 
           {/* Event list */}
           <div className="border border-white/[0.08] bg-white/[0.03] rounded-xl overflow-hidden flex flex-col">
-            <div className="px-4 py-3 border-b border-white/[0.06] flex items-center gap-2 bg-white/[0.02]">
+            <div className="px-4 py-3 border-b border-white/[0.06] flex items-center gap-2 bg-gradient-to-r from-white/[0.02] to-white/[0.04]">
               <Zap className="size-4 text-amber-400" />
-              <span className="text-sm font-semibold text-white/70">Events</span>
-              <span className="ml-auto text-[10px] text-white/30">
+              <span className="text-sm font-semibold text-white/75">Events</span>
+              <span className="ml-auto text-[10px] text-white/35">
                 {filteredMarkers.length} / {markers.length}
               </span>
             </div>
-            <div className="overflow-y-auto max-h-[55vh]">
+            <div className="overflow-y-auto max-h-[52vh] lg:max-h-[65vh]">
               {loadingDay ? (
                 <div className="p-4 space-y-2">
                   {Array.from({ length: 5 }).map((_, i) => (
