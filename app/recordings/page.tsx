@@ -238,13 +238,13 @@ export default function RecordingsPage() {
 
         {/* Video player */}
         <div className="flex-1">
-          <h2 className="text-sm font-bold text-slate-600 mb-3 flex items-center gap-2">
-            <Play className="size-4" /> Player
+          <h2 className="text-base font-bold text-slate-700 mb-3 flex items-center gap-2">
+            <Play className="size-4.5" /> Player
           </h2>
           {playlistUrl ? (
-            <div className="bg-black rounded-xl overflow-hidden shadow-lg">
+            <div className="bg-black rounded-2xl overflow-hidden shadow-xl border border-slate-800/30">
               <SegmentPlayer key={playlistUrl} playlistUrl={playlistUrl} />
-              <div className="bg-slate-900 px-4 py-2.5 text-xs text-slate-400 flex gap-4">
+              <div className="bg-slate-900 px-4 py-3 text-sm text-slate-300 flex flex-wrap gap-x-5 gap-y-2">
                 <span>{formatDate(selectedSeg!.start_time)}</span>
                 <span>{formatTime(selectedSeg!.start_time)} – {formatTime(selectedSeg!.end_time)}</span>
                 <span>{selectedSeg!.duration_sec}s</span>
@@ -254,9 +254,9 @@ export default function RecordingsPage() {
               </div>
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center h-64 bg-white border-2 border-dashed border-slate-200 rounded-xl text-slate-400">
-              <Film className="size-10 mb-3 opacity-30" />
-              <p className="text-sm font-medium">Select a segment to play</p>
+            <div className="flex flex-col items-center justify-center h-72 bg-white border-2 border-dashed border-slate-300 rounded-2xl text-slate-400">
+              <Film className="size-11 mb-3 opacity-30" />
+              <p className="text-base font-semibold">Select a segment to play</p>
             </div>
           )}
         </div>
