@@ -105,21 +105,41 @@ export default function RecordingsPage() {
         </div>
 
         {/* Camera selector */}
-        <div className="ml-auto flex items-center gap-2">
-          <Camera className="size-4 text-white/30 shrink-0" />
-          {loadingCams ? (
-            <div className="h-9 w-40 bg-white/[0.08] animate-pulse rounded-lg" />
-          ) : (
-            <select
-              value={selectedCamId}
-              onChange={(e) => setSelectedCamId(e.target.value)}
-              className="bg-white/[0.06] border border-white/10 rounded-lg px-3 py-2 text-sm text-white/70 focus:outline-none focus:ring-2 focus:ring-[#18ffbe]/30"
-            >
-              {cameras.map((c) => (
-                <option key={c.camera_id} value={c.camera_id}>{c.name} ({c.camera_id})</option>
-              ))}
-            </select>
-          )}
+        <div className="ml-auto w-full max-w-xs">
+          <div className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2">
+            <div className="mb-1.5 flex items-center justify-between">
+              <span className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide text-white/45">
+                <Camera className="size-3.5 shrink-0" />
+                Camera Source
+              </span>
+              {!loadingCams && cameras.length > 0 && (
+                <span className="text-[10px] text-white/35">{cameras.length} cams</span>
+              )}
+            </div>
+
+            {loadingCams ? (
+              <div className="h-9 w-full bg-white/[0.08] animate-pulse rounded-lg" />
+            ) : (
+              <div className="relative">
+                <select
+                  aria-label="Select camera"
+                  value={selectedCamId}
+                  onChange={(e) => setSelectedCamId(e.target.value)}
+                  disabled={cameras.length === 0}
+                  className="w-full appearance-none bg-white/[0.06] border border-white/10 rounded-lg px-3 py-2 pr-9 text-sm text-white/75 focus:outline-none focus:ring-2 focus:ring-[#18ffbe]/30 disabled:cursor-not-allowed disabled:text-white/35"
+                >
+                  {cameras.length === 0 ? (
+                    <option value="">No cameras available</option>
+                  ) : (
+                    cameras.map((c) => (
+                      <option key={c.camera_id} value={c.camera_id}>{c.name} ({c.camera_id})</option>
+                    ))
+                  )}
+                </select>
+                <ChevronRight className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 rotate-90 text-white/35" />
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
