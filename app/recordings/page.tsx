@@ -92,114 +92,134 @@ export default function RecordingsPage() {
   }, [markers, threatsOnly, filterLevel]);
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-[#0a0a0a] text-white p-4 md:p-6 lg:p-8 overflow-y-auto font-sans">
+    <div className="min-h-[calc(100vh-4rem)] bg-gradient-to-b from-slate-100 via-slate-50 to-white text-slate-800 p-4 md:p-6 lg:p-8 font-sans">
 
-      {/* ── Header ── */}
-      <div className="flex items-center gap-3 mb-6">
-        <div className="size-10 rounded-xl bg-[#18ffbe]/10 border border-[#18ffbe]/20 flex items-center justify-center">
-          <Film className="size-5 text-[#18ffbe]" />
-        </div>
+      {/* Header */}
+      <div className="flex items-center gap-3 mb-6 md:mb-8">
+        <Film className="size-7 text-blue-600" />
         <div>
-          <h1 className="text-xl font-bold text-white">Recordings</h1>
-          <p className="text-xs text-white/30">DVR · continuous playback · event timeline · bbox replay</p>
-        </div>
-
-        {/* Camera selector */}
-        <div className="ml-auto flex items-center gap-2">
-          <Camera className="size-4 text-white/30 shrink-0" />
-          {loadingCams ? (
-            <div className="h-9 w-40 bg-white/[0.08] animate-pulse rounded-lg" />
-          ) : (
-            <select
-              value={selectedCamId}
-              onChange={(e) => setSelectedCamId(e.target.value)}
-              className="bg-white/[0.06] border border-white/10 rounded-lg px-3 py-2 text-sm text-white/70 focus:outline-none focus:ring-2 focus:ring-[#18ffbe]/30"
-            >
-              {cameras.map((c) => (
-                <option key={c.camera_id} value={c.camera_id}>{c.name} ({c.camera_id})</option>
-              ))}
-            </select>
-          )}
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900">Recordings</h1>
+          <p className="text-sm md:text-base text-slate-500">Browse and play recorded video segments</p>
         </div>
       </div>
 
       {error && (
-        <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3 mb-4 text-sm text-red-400 flex items-center gap-2">
-          <AlertTriangle className="size-4 shrink-0" />{error}
+        <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-5 text-sm md:text-base text-red-700 flex items-center gap-2.5 shadow-sm">
+          <AlertTriangle className="size-4 md:size-5 shrink-0" />
+          {error}
         </div>
       )}
 
-  
+      {/* Camera selector */}
+      <div className="bg-white/90 backdrop-blur border border-slate-200 rounded-2xl p-4 md:p-5 shadow-sm mb-6 md:mb-8 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+        <div className="flex items-center gap-3 min-w-0">
+          <Camera className="size-5 md:size-6 text-slate-400 shrink-0" />
+          <label className="text-sm md:text-base font-semibold text-slate-700 shrink-0">Camera</label>
+        </div>
+        {loadingCams ? (
+          <div className="h-11 md:h-12 w-full sm:w-72 bg-slate-100 animate-pulse rounded-xl" />
+        ) : (
+          <select
+            value={selectedCamId}
+            onChange={(e) => setSelectedCamId(e.target.value)}
+            className="w-full sm:w-[24rem] bg-white border border-slate-300 rounded-xl px-4 py-3 md:py-3.5 text-base text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-400"
+          >
+            {cameras.map((c) => (
+              <option key={c.camera_id} value={c.camera_id}>
+                {c.name} ({c.camera_id})
+              </option>
+            ))}
+          </select>
+        )}
+        <span className="sm:ml-auto text-sm font-medium text-slate-500">
+          {segments.length} segment{segments.length !== 1 ? "s" : ""}
+        </span>
+      </div>
 
-      {/* ── Player + Events ── */}
-      <div className="flex flex-col lg:flex-row gap-5">
+      <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
 
-        {/* Player */}
-        <div className="flex-1 min-w-0">
-          {playlistUrl ? (
-            <div className="border border-white/[0.08] bg-white/[0.03] rounded-2xl overflow-hidden">
-              <DayPlayer
-                key={playlistUrl}
-                playlistUrl={playlistUrl}
-                seekTo={seekTo}
-                bboxMarker={bboxMarker}
-                onBboxExpire={() => setBboxMarker(null)}
-              />
-              {/* Player footer */}
-              <div className="px-4 py-2.5 flex items-center gap-4 text-xs text-white/40 border-t border-white/[0.06] bg-white/[0.02]">
-                <span className="font-semibold text-white/70">{formatDateLabel(selectedDay)}</span>
-                <span>{segments.length} segment{segments.length !== 1 ? "s" : ""} stitched</span>
-                <span className="flex items-center gap-1">
-                  <div className="size-1.5 rounded-full bg-[#18ffbe]" />{formatDuration(totalDuration)}
-                </span>
-                {bboxMarker ? (
-                  <span
-                    className="ml-auto flex items-center gap-1.5 font-semibold text-xs animate-pulse"
-                    style={{ color: bboxMarker.is_threat ? "#f87171" : bboxMarker.threat_level === "MEDIUM" ? "#fb923c" : "#94a3b8" }}
+        {/* Segment timeline */}
+        <div className="lg:w-[22rem] shrink-0">
+          <h2 className="text-base font-bold text-slate-700 mb-3 flex items-center gap-2">
+            <Clock className="size-4.5" /> Timeline
+          </h2>
+          <div className="space-y-2 max-h-[65vh] overflow-y-auto pr-1">
+            {loadingSegs ? (
+              Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="h-24 bg-white border border-slate-200 rounded-xl animate-pulse" />
+              ))
+            ) : segments.length === 0 ? (
+              <div className="text-center py-12 px-4 bg-white border border-slate-200 rounded-xl text-slate-400">
+                <Film className="size-9 mx-auto mb-3 opacity-30" />
+                <p className="text-sm font-semibold">No recordings found</p>
+                <p className="text-xs mt-1">Enable RECORDINGS_ENABLED=true in .env</p>
+              </div>
+            ) : (
+              segments.map((seg) => {
+                const isSelected = selectedSeg?.segment_id === seg.segment_id;
+                return (
+                  <button
+                    key={seg.segment_id}
+                    onClick={() => setSelectedSeg(seg)}
+                    className={`w-full text-left p-4 min-h-24 rounded-xl border transition-all duration-150 ${
+                      isSelected
+                        ? "bg-blue-50 border-blue-300 ring-2 ring-blue-400 shadow-sm"
+                        : "bg-white border-slate-200 hover:bg-slate-50 hover:border-slate-300 hover:shadow-sm"
+                    }`}
                   >
-                    <div className="size-1.5 rounded-full" style={{ background: bboxMarker.is_threat ? "#f87171" : bboxMarker.threat_level === "MEDIUM" ? "#fb923c" : "#94a3b8" }} />
-                    {bboxMarker.object_class} · {bboxMarker.threat_level}
-                  </span>
-                ) : (
-                  <span className="ml-auto text-white/25 text-[10px]">
-                    Click timeline or event to jump + show bbox
-                  </span>
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="text-sm font-bold text-slate-800 truncate">
+                          {formatDate(seg.start_time)}
+                        </p>
+                        <p className="text-sm text-slate-600 mt-0.5">
+                          {formatTime(seg.start_time)} → {formatTime(seg.end_time)}
+                        </p>
+                        <div className="flex items-center gap-2 mt-2 flex-wrap">
+                          <span className="text-xs text-slate-500 flex items-center gap-1.5 bg-slate-100 rounded-full px-2 py-1">
+                            <HardDrive className="size-3" />
+                            {formatBytes(seg.size_bytes)}
+                          </span>
+                          <span className="text-xs text-slate-500 bg-slate-100 rounded-full px-2 py-1">
+                            {seg.duration_sec}s
+                          </span>
+                          {seg.has_detections && (
+                            <span className="text-xs bg-orange-100 text-orange-700 font-semibold px-2 py-1 rounded-full">
+                              {seg.detection_count} detection{seg.detection_count !== 1 ? "s" : ""}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <Play className={`size-5 shrink-0 mt-1 ${isSelected ? "text-blue-600" : "text-slate-300"}`} />
+                    </div>
+                  </button>
+                );
+              })
+            )}
+          </div>
+        </div>
+
+        {/* Video player */}
+        <div className="flex-1">
+          <h2 className="text-base font-bold text-slate-700 mb-3 flex items-center gap-2">
+            <Play className="size-4.5" /> Player
+          </h2>
+          {playlistUrl ? (
+            <div className="bg-black rounded-2xl overflow-hidden shadow-xl border border-slate-800/30">
+              <SegmentPlayer key={playlistUrl} playlistUrl={playlistUrl} />
+              <div className="bg-slate-900 px-4 py-3 text-sm text-slate-300 flex flex-wrap gap-x-5 gap-y-2">
+                <span>{formatDate(selectedSeg!.start_time)}</span>
+                <span>{formatTime(selectedSeg!.start_time)} – {formatTime(selectedSeg!.end_time)}</span>
+                <span>{selectedSeg!.duration_sec}s</span>
+                {selectedSeg!.has_detections && (
+                  <span className="text-orange-400 font-semibold">{selectedSeg!.detection_count} detection{selectedSeg!.detection_count !== 1 ? "s" : ""}</span>
                 )}
               </div>
             </div>
           ) : (
-            <div className="border border-white/[0.08] bg-white/[0.03] rounded-2xl overflow-hidden">
-              {/* Skeleton video area */}
-              <div className="relative w-full aspect-video bg-black flex flex-col items-center justify-center gap-3">
-                {loadingDay ? (
-                  <>
-                    <div className="relative size-14 rounded-full bg-white/[0.06] animate-pulse flex items-center justify-center">
-                      <div className="size-8 rounded-full bg-white/[0.08] animate-pulse" />
-                    </div>
-                    <div className="relative space-y-2 text-center">
-                      <div className="h-3 w-36 bg-white/[0.08] animate-pulse rounded mx-auto" />
-                      <div className="h-2.5 w-24 bg-white/[0.06] animate-pulse rounded mx-auto" />
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="relative size-14 rounded-full bg-white/[0.04] flex items-center justify-center">
-                      <Film className="size-7 text-white/20 opacity-60" />
-                    </div>
-                    <div className="relative text-center">
-                      <p className="text-sm font-medium text-white/40">No recordings for this day</p>
-                      <p className="text-xs mt-1 text-white/25">Set RECORDINGS_ENABLED=true in .env</p>
-                    </div>
-                  </>
-                )}
-              </div>
-              {/* Skeleton footer */}
-              <div className="px-4 py-2.5 flex items-center gap-4 border-t border-white/[0.06] bg-white/[0.02]">
-                <div className="h-3 w-16 bg-white/[0.08] animate-pulse rounded" />
-                <div className="h-3 w-24 bg-white/[0.06] animate-pulse rounded" />
-                <div className="h-3 w-14 bg-white/[0.06] animate-pulse rounded" />
-                <div className="ml-auto h-3 w-40 bg-white/[0.06] animate-pulse rounded" />
-              </div>
+            <div className="flex flex-col items-center justify-center h-72 bg-white border-2 border-dashed border-slate-300 rounded-2xl text-slate-400">
+              <Film className="size-11 mb-3 opacity-30" />
+              <p className="text-base font-semibold">Select a segment to play</p>
             </div>
           )}
 
