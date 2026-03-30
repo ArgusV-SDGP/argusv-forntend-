@@ -129,20 +129,20 @@ export default function RecordingsPage() {
     : null;
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-slate-50 text-slate-800 p-4 md:p-6 lg:p-8 font-sans">
+    <div className="min-h-[calc(100vh-4rem)] bg-gradient-to-b from-slate-100 via-slate-50 to-white text-slate-800 p-4 md:p-6 lg:p-8 font-sans">
 
       {/* Header */}
-      <div className="flex items-center gap-3 mb-6">
-        <Film className="size-6 text-blue-600" />
+      <div className="flex items-center gap-3 mb-6 md:mb-8">
+        <Film className="size-7 text-blue-600" />
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Recordings</h1>
-          <p className="text-sm text-slate-500">Browse and play recorded video segments</p>
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900">Recordings</h1>
+          <p className="text-sm md:text-base text-slate-500">Browse and play recorded video segments</p>
         </div>
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4 text-sm text-red-700 flex items-center gap-2">
-          <AlertTriangle className="size-4 shrink-0" />
+        <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-5 text-sm md:text-base text-red-700 flex items-center gap-2.5 shadow-sm">
+          <AlertTriangle className="size-4 md:size-5 shrink-0" />
           {error}
         </div>
       )}
