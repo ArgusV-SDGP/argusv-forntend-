@@ -9,7 +9,7 @@ import {
   NavigationMenuItem,
   NavigationMenuLink,
 } from "@/components/ui/navigation-menu-1";
-import { LayoutGrid, Bell, Menu, X, LogOut, UserRound, Bot, Settings } from "lucide-react";
+import { LayoutGrid, Bell, Menu, X, LogOut, UserRound, Bot, Settings, Eye } from "lucide-react";
 import { fetchMe, logout } from "@/lib/client-services/auth.service";
 
 export function NavigationBar() {
@@ -137,6 +137,17 @@ export function NavigationBar() {
               Zones
             </NavigationMenuLink>
           </NavigationMenuItem>
+          <NavigationMenuItem>
+            <NavigationMenuLink
+              render={<Link href="/birdseye" />}
+              className={getLinkStyle("/birdseye")}
+            >
+              <span className="flex items-center gap-1.5">
+                <Eye className="size-3.5" />
+                Birdseye
+              </span>
+            </NavigationMenuLink>
+          </NavigationMenuItem>
         </NavigationMenuList>
       </NavigationMenu>
 
@@ -258,6 +269,14 @@ export function NavigationBar() {
               className={`p-2 rounded-md ${pathname?.startsWith("/zones") ? "bg-accent text-foreground font-medium" : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"}`}
             >
               Zones
+            </Link>
+            <Link
+              href="/birdseye"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={`flex items-center gap-1.5 p-2 rounded-md ${pathname?.startsWith("/birdseye") ? "bg-accent text-foreground font-medium" : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"}`}
+            >
+              <Eye className="size-3.5" />
+              Birdseye
             </Link>
           </nav>
         </div>

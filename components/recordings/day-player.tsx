@@ -2,6 +2,7 @@
 
 import Hls from "hls.js";
 import { useEffect, useRef } from "react";
+import { getAccessToken } from "@/lib/client-services/auth.service";
 import { BboxOverlay } from "./bbox-overlay";
 import { DetectionMarker } from "./types";
 
@@ -27,7 +28,15 @@ export function DayPlayer({
     }
     if (!Hls.isSupported()) return;
 
-    const hls = new Hls({ enableWorker: true });
+    const token = getAccessToken();
+    const hls = new Hls({
+      enableWorker: true,
+      ...(token && {
+        xhrSetup(xhr) {
+          xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+        },
+      }),
+    });
     hlsRef.current = hls;
     hls.loadSource(playlistUrl);
     hls.attachMedia(video);
